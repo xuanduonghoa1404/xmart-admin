@@ -1,17 +1,17 @@
 import Home from "../components/Home/Home";
 import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
-import MaterialManager from "../components/Material/MaterialManager";
+import InventoryManager from "../components/Inventory/InventoryManager";
 
-function MaterialRoute(props) {
+function InventoryRoute(props) {
   const { path, url } = useRouteMatch();
   return (
     <Switch>
       <Route path={path}>
-        <MaterialManager />
+        <InventoryManager />
       </Route>
     </Switch>
   );
 }
 
-export default MaterialRoute;
+export default InventoryRoute;

@@ -14,10 +14,11 @@ const Home = lazy(() => import("./HomeRoute"));
 const OrderManager = lazy(() => import("./OrderRoute"));
 const ProductManager = lazy(() => import("./ProductRoute"));
 const TypeProductManager = lazy(() => import("./TypeProductRoute"));
-const MaterialManager = lazy(() => import("./MaterialRoute"));
-const ImportMaterial = lazy(() => import("./ImportMaterialRoute"));
-const ExportMaterial = lazy(() => import("./ExportMaterialRoute"));
+const InventoryManager = lazy(() => import("./InventoryRoute"));
+const ImportInventory = lazy(() => import("./ImportInventoryRoute"));
+const ExportInventory = lazy(() => import("./ExportInventoryRoute"));
 const TableManager = lazy(() => import("./TableRoute"));
+const ShopManager = lazy(() => import("./ShopRoute"));
 const MemberManager = lazy(() => import("./MemberRoute"));
 const AccountManager = lazy(() => import("./AccountRoute"));
 // const Profile = lazy( () => import("routers/ProfileRoute"));
@@ -32,10 +33,11 @@ function MainAppRoute(props) {
           <PrivateRoute component={OrderManager} exact path="/order" />
           <PrivateRoute component={ProductManager} exact path="/product" />
           <PrivateRoute component={TypeProductManager} exact path="/typeproduct" />
-          <PrivateRoute component={MaterialManager} exact path="/material" />
-          <PrivateRoute component={ImportMaterial} path="/material/import" />
-          <PrivateRoute component={ExportMaterial} path="/material/export" />
+          <PrivateRoute component={InventoryManager} exact path="/inventory" />
+          <PrivateRoute component={ImportInventory} path="/inventory/import" />
+          <PrivateRoute component={ExportInventory} path="/inventory/export" />
           <PrivateRoute component={TableManager} exact path="/store/locator" />
+          <PrivateRoute component={ShopManager} exact path="/store/shop" />
           <PrivateRoute component={MemberManager} exact path="/member" />
           <PrivateRoute component={AccountManager} exact path="/account" />
 

@@ -13,8 +13,8 @@ import {
   Column,
   Select,
 } from "antd";
-import exportMaterialApi from "../../api/exportMaterialApi";
-import materialApi from "../../api/materialApi";
+import exportInventoryApi from "../../api/exportInventoryApi";
+import inventoryApi from "../../api/inventoryApi";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import Highlighter from "react-highlight-words";
@@ -29,7 +29,7 @@ const { Option } = Select;
 // }
 //
 // ReactDOM.render(<Checkbox onChange={onChange}>Checkbox</Checkbox>, mountNode);
-function ExportMaterialManager(props) {
+function ExportInventoryManager(props) {
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -38,10 +38,10 @@ function ExportMaterialManager(props) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [action, setAction] = useState("Sửa thông tin");
   const [editId, setEditId] = useState("");
-  const [isExportMaterialTable, setIsExportMaterialTable] = useState(false);
+  const [isExportInventoryTable, setIsExportInventoryTable] = useState(false);
   const [dataMenu, setDataMenu] = useState([]);
   const [dataTable, setDataTable] = useState([]);
-  const [dataMaterial, setDataMaterial] = useState([]);
+  const [dataInventory, setDataInventory] = useState([]);
   const [userEmail, setUserEmail] = useState(
     jwt.decode(localStorage.getItem("token")).email
   );
@@ -70,26 +70,26 @@ function ExportMaterialManager(props) {
 
   const onFinishModal = async (values) => {
     console.log(values);
-    let exportMaterial = Object.keys(values).map((item, index) => {
+    let exportInventory = Object.keys(values).map((item, index) => {
       return values[item];
     });
-    let newExportMaterial = [];
-    for (let i = 1; i < exportMaterial.length; i += 2) {
-      newExportMaterial.push({
-        material: exportMaterial[i],
-        amount: exportMaterial[i + 1],
+    let newExportInventory = [];
+    for (let i = 1; i < exportInventory.length; i += 2) {
+      newExportInventory.push({
+        inventory: exportInventory[i],
+        amount: exportInventory[i + 1],
       });
     }
-    console.log(newExportMaterial);
-    let newValues = { ...values, export: [...newExportMaterial] };
+    console.log(newExportInventory);
+    let newValues = { ...values, export: [...newExportInventory] };
     // console.log(newValues);
-    // if (isExportMaterialTable == false) {
-    //   newValues = { ...values, email: userEmail, exportMaterial: [...newExportMaterial] };
+    // if (isExportInventoryTable == false) {
+    //   newValues = { ...values, email: userEmail, exportInventory: [...newExportInventory] };
     // }
     if (action === "Sửa thông tin") {
-      await exportMaterialApi.editExportMaterialById(editId, values);
+      await exportInventoryApi.editExportInventoryById(editId, values);
     } else {
-      await exportMaterialApi.createExportMaterial(newValues);
+      await exportInventoryApi.createExportInventory(newValues);
     }
     await getData();
     setIsModalVisible(false);
@@ -198,18 +198,18 @@ function ExportMaterialManager(props) {
 
   useEffect(async () => {
     await getData();
-    await getDataMaterial();
+    await getDataInventory();
   }, []);
 
-  const getDataMaterial = async () => {
-    let res = await materialApi.getAllMaterial();
+  const getDataInventory = async () => {
+    let res = await inventoryApi.getAllInventory();
 
     console.log(res);
-    setDataMaterial(res);
+    setDataInventory(res);
   };
 
   const getData = async () => {
-    let res = await exportMaterialApi.getAllExportMaterial();
+    let res = await exportInventoryApi.getAllExportInventory();
     let resData = res.map((item, index) => {
       return {
         ...item,
@@ -223,14 +223,14 @@ function ExportMaterialManager(props) {
 
   // const handlePayMoney = async (id, status) => {
   //   console.log(id);
-  //   const res = await exportMaterialApi.payExportMaterialById(id, status);
+  //   const res = await exportInventoryApi.payExportInventoryById(id, status);
   //   console.log(res);
   //   await getData();
   // };
 
   const handleDelete = async (id) => {
     console.log(id);
-    const res = await exportMaterialApi.deleteExportMaterialById(id);
+    const res = await exportInventoryApi.deleteExportInventoryById(id);
     console.log(res);
     await getData();
   };
@@ -343,21 +343,21 @@ function ExportMaterialManager(props) {
                   key={index}
                   className="itemMenu"
                   style={{
-                    bexportMaterialBottom: "1px solid #000",
+                    bexportInventoryBottom: "1px solid #000",
                     padding: "8px 0px",
                     marginBottom: "8px",
                   }}
                 >
                   <Form.Item
                     key={index}
-                    name={"material." + index}
+                    name={"inventory." + index}
                     label={
                       "Sản phẩm" +
                       (dataMenu.length > 1 ? " " + (index + 1) : "")
                     }
                   >
                     <Select placeholder="Chọn sản phẩm" allowClear>
-                      {dataMaterial.map((item, index) => {
+                      {dataInventory.map((item, index) => {
                         return <Option value={item._id}>{item.name}</Option>;
                       })}
                     </Select>
@@ -394,10 +394,10 @@ function ExportMaterialManager(props) {
             expandedRowRender: (record) => {
               let dataSourceRow = record.export.map((item, index) => {
                 return {
-                  ...item.material,
+                  ...item.inventory,
                   amount: item.amount,
-                  totalPrice: item.amount * item.material.priceperunit,
-                  priceperunit: item.material.priceperunit,
+                  totalPrice: item.amount * item.inventory.priceperunit,
+                  priceperunit: item.inventory.priceperunit,
                   key: index,
                 };
               });
@@ -411,6 +411,6 @@ function ExportMaterialManager(props) {
   );
 }
 
-ExportMaterialManager.propTypes = {};
+ExportInventoryManager.propTypes = {};
 
-export default ExportMaterialManager;
+export default ExportInventoryManager;

@@ -1,17 +1,17 @@
 import Home from "../components/Home/Home";
 import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
-import ImportMaterial from "../components/Material/ImportMaterial";
+import ExportInventory from "../components/Inventory/ExportInventory";
 
-function ExportMaterialRoute(props) {
+function ImportInventoryRoute(props) {
   const { path, url } = useRouteMatch();
   return (
     <Switch>
       <Route path={path}>
-        <ImportMaterial />
+        <ExportInventory />
       </Route>
     </Switch>
   );
 }
 
-export default ExportMaterialRoute;
+export default ImportInventoryRoute;

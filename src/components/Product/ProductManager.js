@@ -265,15 +265,26 @@ function ProductManager(props) {
     },
     {
       title: "Mô tả",
-      dataIndex: "description",
-      key: "description",
-      sorter: (a, b) => a.description.length - b.description.length,
+      dataIndex: "productID",
+      key: "productID",
+      sorter: (a, b) => a.productID.length - b.productID.length,
+      ...getColumnSearchProps("productID"),
     },
     {
       title: "Loại",
       dataIndex: "typeName",
       key: "typeName",
       sorter: (a, b) => a.typeName.length - b.typeName.length,
+      filters: [
+        {
+          text: "Đang bán",
+          value: true,
+        },
+        {
+          text: "Không bán",
+          value: false,
+        },
+      ],
     },
     {
       title: "Giá",

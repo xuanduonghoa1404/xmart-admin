@@ -1,36 +1,36 @@
 import axiosClient from "./axiosClient";
 import { notification } from "antd";
 
-const importMaterialProductApi = {
-  getAllImportMaterial: async () => {
+const importInventoryProductApi = {
+  getAllImportInventory: async () => {
     try {
-      const response = await axiosClient.get(`api/importMaterial`);
+      const response = await axiosClient.get(`api/importInventory`);
       return response;
     } catch (error) {
       throw error;
     }
   },
-  deleteImportMaterialById: async (id) => {
+  deleteImportInventoryById: async (id) => {
     try {
-      const response = await axiosClient.delete(`api/importMaterial/${id}`);
+      const response = await axiosClient.delete(`api/importInventory/${id}`);
       notification.success({ message: "Xóa thành công!" });
       return response;
     } catch (error) {
       throw error;
     }
   },
-  editImportMaterialById: async (id, data) => {
+  editImportInventoryById: async (id, data) => {
     try {
-      const response = await axiosClient.patch(`api/importMaterial/${id}`, data);
+      const response = await axiosClient.patch(`api/importInventory/${id}`, data);
       notification.success({ message: "Sửa thành công!" });
       return response;
     } catch (error) {
       throw error;
     }
   },
-  createImportMaterial: async (data) => {
+  createImportInventory: async (data) => {
     try {
-      const response = await axiosClient.post(`api/importMaterial`, data);
+      const response = await axiosClient.post(`api/importInventory`, data);
       notification.success({ message: "Nhập kho thành công!" });
       return response;
     } catch (error) {
@@ -39,4 +39,4 @@ const importMaterialProductApi = {
   },
 };
 
-export default importMaterialProductApi;
+export default importInventoryProductApi;

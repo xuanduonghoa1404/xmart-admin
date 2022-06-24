@@ -16,7 +16,7 @@ import {
   Dropdown,
   Menu
 } from "antd";
-import materialApi from "../../api/materialApi";
+import inventoryApi from "../../api/inventoryApi";
 import { FiEdit } from "react-icons/fi";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import Highlighter from "react-highlight-words";
@@ -25,7 +25,7 @@ import TextArea from "antd/lib/input/TextArea";
 import locatorApi from "../../api/locatorApi";
 const { Option } = Select;
 
-function MaterialManager(props) {
+function InventoryManager(props) {
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -64,9 +64,9 @@ function MaterialManager(props) {
   const onFinishModal = async (values) => {
     console.log(values);
     if (action == "Sửa thông tin") {
-      await materialApi.editMaterialById(editId, values);
+      await inventoryApi.editInventoryById(editId, values);
     } else {
-      await materialApi.createMaterial({ ...values });
+      await inventoryApi.createInventory({ ...values });
     }
     await getData();
     setIsModalVisible(false);
@@ -185,12 +185,16 @@ function MaterialManager(props) {
         if (value !== 'all') {
           item.inventory.forEach((i) => {
             if (i.locator == value) {
-              quantity = i.quantity
+              i.imports.forEach((j) => {
+                quantity += j.quantity
+              })
             }
           })
         } else {
           item.inventory.forEach((i) => {
-            quantity += i.quantity
+            i.imports.forEach((j) => {
+              quantity += j.quantity
+            })
           })
         }
       }
@@ -203,7 +207,7 @@ function MaterialManager(props) {
   };
 
   const getData = async () => {
-    let res = await materialApi.getAllMaterial();
+    let res = await inventoryApi.getAllInventory();
     let resData = res.map((item, index) => {
       let color;
       switch (item.status) {
@@ -223,7 +227,9 @@ function MaterialManager(props) {
         quantity = 0
       } else {
         item.inventory.forEach((i) => {
-          quantity += i.quantity
+          i.imports.forEach((j) => {
+            quantity += j.quantity
+          })
         })
       }
       return {
@@ -241,7 +247,7 @@ function MaterialManager(props) {
 
   const handleDelete = async (id) => {
     console.log(id);
-    const res = await materialApi.deleteMaterialById(id);
+    const res = await inventoryApi.deleteInventoryById(id);
     console.log(res);
     await getData();
   };
@@ -448,6 +454,6 @@ function MaterialManager(props) {
   );
 }
 
-MaterialManager.propTypes = {};
+InventoryManager.propTypes = {};
 
-export default MaterialManager;
+export default InventoryManager;

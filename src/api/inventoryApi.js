@@ -1,61 +1,61 @@
 import axiosClient from "./axiosClient";
 import { notification } from "antd";
 
-const materialApi = {
-  getAllMaterial: async () => {
+const inventoryApi = {
+  getAllInventory: async () => {
     try {
-      const response = await axiosClient.get(`api/material`);
+      const response = await axiosClient.get(`api/inventory`);
       return response;
     } catch (error) {
       throw error;
     }
   },
-  getMaterialInput: async () => {
+  getInventoryInput: async () => {
     try {
-      const response = await axiosClient.get(`api/materialInput`);
+      const response = await axiosClient.get(`api/inventoryInput`);
       return response;
     } catch (error) {
       throw error;
     }
   },
-  getMaterialOutput: async () => {
+  getInventoryOutput: async () => {
     try {
-      const response = await axiosClient.get(`api/materialOutput`);
+      const response = await axiosClient.get(`api/inventoryOutput`);
       return response;
     } catch (error) {
       throw error;
     }
   },
-  deleteMaterialById: async (id) => {
+  deleteInventoryById: async (id) => {
     try {
-      const response = await axiosClient.delete(`api/material/${id}`);
+      const response = await axiosClient.delete(`api/inventory/${id}`);
       notification.success({ message: "Xóa thành công!" });
       return response;
     } catch (error) {
       throw error;
     }
   },
-  editMaterialById: async (id, data) => {
+  editInventoryById: async (id, data) => {
     try {
-      const response = await axiosClient.patch(`api/updateImportMaterial/${id}`, data);
+      const response = await axiosClient.patch(`api/updateImportInventory/${id}`, data);
       notification.success({ message: "Sửa thành công!" });
       return response;
     } catch (error) {
       throw error;
     }
   },
-  createMaterialInput: async (data) => {
+  createInventoryInput: async (data) => {
     try {
-      const response = await axiosClient.post(`api/importMaterial`, data);
+      const response = await axiosClient.post(`api/importInventory`, data);
       notification.success({ message: "Thêm sản phẩm thành công!" });
       return response;
     } catch (error) {
       throw error;
     }
   },
-  createMaterialOutput: async (data) => {
+  createInventoryOutput: async (data) => {
     try {
-      const response = await axiosClient.post(`api/exportMaterial`, data);
+      const response = await axiosClient.post(`api/exportInventory`, data);
       notification.success({ message: "Xóa thành công!" });
       return response;
     } catch (error) {
@@ -64,4 +64,4 @@ const materialApi = {
   },
 };
 
-export default materialApi;
+export default inventoryApi;

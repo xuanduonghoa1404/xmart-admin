@@ -90,11 +90,11 @@ function LayoutMenu(props) {
             disabled={role == "cashier" ? true : false}
           >
             <Menu.Item key="3" icon={<ProfileOutlined />}>
-              {/* <Link to="/material">Material Manager</Link> */}
+              {/* <Link to="/inventory">Inventory Manager</Link> */}
               <Link to="/product">Danh mục sản phẩm</Link>
             </Menu.Item>
             <Menu.Item key="10" icon={<TagsOutlined />}>
-              {/* <Link to="/material/import">Import Material</Link> */}
+              {/* <Link to="/inventory/import">Import Inventory</Link> */}
               <Link to="/typeProduct">Quản lý loại sản phẩm</Link>
             </Menu.Item>
           </SubMenu>
@@ -105,16 +105,16 @@ function LayoutMenu(props) {
             disabled={role == "cashier" ? true : false}
           >
             <Menu.Item key="4" icon={<BarsOutlined />}>
-              {/* <Link to="/material">Material Manager</Link> */}
-              <Link to="/material">Quản lý kho</Link>
+              {/* <Link to="/inventory">Inventory Manager</Link> */}
+              <Link to="/inventory">Quản lý kho</Link>
             </Menu.Item>
             <Menu.Item key="5" icon={<ImportOutlined />}>
-              {/* <Link to="/material/import">Import Material</Link> */}
-              <Link to="/material/import">Nhập kho</Link>
+              {/* <Link to="/inventory/import">Import Inventory</Link> */}
+              <Link to="/inventory/import">Nhập kho</Link>
             </Menu.Item>
             <Menu.Item key="6" icon={<ExportOutlined />}>
-              {/* <Link to="/material/export">Export Material</Link> */}
-              <Link to="/material/export">Xuất kho</Link>
+              {/* <Link to="/inventory/export">Export Inventory</Link> */}
+              <Link to="/inventory/export">Xuất kho</Link>
             </Menu.Item>
           </SubMenu>
           <SubMenu
@@ -130,6 +130,14 @@ function LayoutMenu(props) {
             >
               {/* <Link to="/store/table">Table Manager</Link> */}
               <Link to="/store/locator">Quản lý chi nhánh</Link>
+            </Menu.Item>
+            <Menu.Item
+              key="7"
+              icon={<TableOutlined />}
+              disabled={role == "admin" ? false : true}
+            >
+              {/* <Link to="/store/table">Table Manager</Link> */}
+              <Link to="/store/shop">Cấu hình cửa hàng</Link>
             </Menu.Item>
           </SubMenu>
           <Menu.Item
