@@ -14,6 +14,7 @@ const Home = lazy(() => import("./HomeRoute"));
 const OrderManager = lazy(() => import("./OrderRoute"));
 const ProductManager = lazy(() => import("./ProductRoute"));
 const TypeProductManager = lazy(() => import("./TypeProductRoute"));
+const MarketingManager = lazy(() => import("./MarketingRoute"));
 const InventoryManager = lazy(() => import("./InventoryRoute"));
 const ImportInventory = lazy(() => import("./ImportInventoryRoute"));
 const ExportInventory = lazy(() => import("./ExportInventoryRoute"));
@@ -33,6 +34,7 @@ function MainAppRoute(props) {
           <PrivateRoute component={OrderManager} exact path="/order" />
           <PrivateRoute component={ProductManager} exact path="/product" />
           <PrivateRoute component={TypeProductManager} exact path="/typeproduct" />
+          <PrivateRoute component={MarketingManager} exact path="/marketing" />
           <PrivateRoute component={InventoryManager} exact path="/inventory" />
           <PrivateRoute component={ImportInventory} path="/inventory/import" />
           <PrivateRoute component={ExportInventory} path="/inventory/export" />

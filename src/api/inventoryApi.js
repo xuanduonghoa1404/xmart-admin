@@ -10,6 +10,14 @@ const inventoryApi = {
       throw error;
     }
   },
+  getInventoryDateExpiration: async () => {
+    try {
+      const response = await axiosClient.get(`api/inventory-date-expiration`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
   getInventoryInput: async () => {
     try {
       const response = await axiosClient.get(`api/inventoryInput`);

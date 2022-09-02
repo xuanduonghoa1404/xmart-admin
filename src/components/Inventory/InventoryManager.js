@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -201,6 +201,51 @@ function InventoryManager(props) {
       return {
         ...item,
         quantity: quantity
+      };
+    });
+    setData(resData);
+  };
+
+  const handle = useCallback(async () => {
+    await getInventoryDateExpiration();
+  }
+  , [data]);
+
+  const getInventoryDateExpiration = async () => {
+    console.log("getInventoryDateExpiration");
+    let res = await inventoryApi.getInventoryDateExpiration();
+    let resData = res.map((item, index) => {
+      // let color;
+      // switch (item.status) {
+      //   case "admin":
+      //     color = "red";
+      //     break;
+      //   case "cashier":
+      //     color = "green";
+      //     break;
+      //   // case "customer": "blue"; break;
+      //   case "inventoryManager":
+      //     color = "blue";
+      //     break;
+      // }
+      let quantity = 0
+      if (!item.inventory.length) {
+        quantity = 0
+      } else {
+        item.inventory.forEach((i) => {
+          i.imports.forEach((j) => {
+            quantity += j.quantity
+          })
+        })
+      }
+      return {
+        ...item,
+        quantity: quantity,
+        // status: (
+        //   <Tag color={color} key={item.status}>
+        //     {item.status}
+        //   </Tag>
+        // ),
       };
     });
     setData(resData);
@@ -409,6 +454,15 @@ function InventoryManager(props) {
             return <Option value={item._id}>{item.name}</Option>;
           })}
         </Select>
+        <Button
+          type="secondary"
+          onClick={() => {
+            handle()
+          }}
+          style={{ marginBottom: "16px" }}
+        >
+          Sản phẩm sắp hết hạn
+          </Button>
         <Modal
           footer={null}
           title={action}

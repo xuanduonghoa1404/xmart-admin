@@ -14,7 +14,7 @@ import {
   ImportOutlined,
   ExportOutlined,
   ExperimentOutlined,
-  BankOutlined,
+  PercentageOutlined,
   TagsOutlined,
   ShopOutlined,
   MenuOutlined,
@@ -98,6 +98,9 @@ function LayoutMenu(props) {
               <Link to="/typeProduct">Quản lý loại sản phẩm</Link>
             </Menu.Item>
           </SubMenu>
+          <Menu.Item key="13" icon={<PercentageOutlined />}>
+            <Link to="/marketing">Khuyến mại</Link>
+          </Menu.Item>
           <SubMenu
             key="sub1"
             icon={<DatabaseOutlined />}
@@ -132,7 +135,7 @@ function LayoutMenu(props) {
               <Link to="/store/locator">Quản lý chi nhánh</Link>
             </Menu.Item>
             <Menu.Item
-              key="7"
+              key="10"
               icon={<TableOutlined />}
               disabled={role == "admin" ? false : true}
             >
