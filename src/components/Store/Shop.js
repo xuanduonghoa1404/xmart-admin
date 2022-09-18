@@ -69,7 +69,10 @@ function Shop(props) {
     };
 
     useEffect(() => {
-        getData();
+        const loadData = async () => {
+            await getData();
+        }
+        loadData();
     }, []);
 
     return (

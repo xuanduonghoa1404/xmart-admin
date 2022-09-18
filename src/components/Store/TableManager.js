@@ -162,11 +162,14 @@ function TableManager(props) {
       setSearchText("");
     };
 
-    useEffect(async () => {
-      // setData(fakeData);
+   
+  useEffect(() => {
+    const loadData = async () => {
       await getData();
-    }, []);
-
+    }
+    loadData();
+  }, []);
+  
     const getData = async () => {
       let res = await locatorApi.getAllTable();
       let resData = res.map((item, index) => {

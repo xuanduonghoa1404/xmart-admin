@@ -198,11 +198,13 @@ function OrderManager(props) {
     setSearchText("");
   };
 
-  useEffect(async () => {
-    // setData(fakeData);
-    await getData();
-    await getDataTable();
-    await getDataProduct();
+  useEffect(() => {
+    const loadData = async () => {
+      await getData();
+      await getDataTable();
+      await getDataProduct();
+    }
+    loadData();
   }, []);
 
   const getDataTable = async () => {

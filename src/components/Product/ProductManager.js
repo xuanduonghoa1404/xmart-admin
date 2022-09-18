@@ -221,10 +221,12 @@ function ProductManager(props) {
     setSearchText("");
   };
 
-  useEffect(async () => {
-    // setData(fakeData);
-    await getData();
-    await getDataOption();
+  useEffect(() => {
+    const loadData = async () => {
+      await getData();
+      await getDataOption();
+    }
+    loadData();
   }, []);
 
   const getDataOption = async () => {

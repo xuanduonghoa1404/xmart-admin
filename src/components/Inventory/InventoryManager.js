@@ -167,10 +167,14 @@ function InventoryManager(props) {
     setSearchText("");
   };
 
-  useEffect(async () => {
-    await getData();
-    await getListLocator();
+  useEffect(() => {
+    const loadData = async () => {
+      await getData();
+      await getListLocator();
+    }
+    loadData();
   }, []);
+
   const getListLocator = async () => {
     let res = await locatorApi.getAllTable();
     setListLocator(res);

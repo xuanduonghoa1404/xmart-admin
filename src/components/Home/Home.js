@@ -15,11 +15,14 @@ function Home(props) {
   const [value, setValue] = useState([]);
   const [valueProduct, setValueProduct] = useState([]);
 
-  useEffect(async () => {
-    let resProduct = await homeApi.getStatisticProduct();
-    setValueProduct(resProduct);
+  useEffect(() => {
+    const loadData = async () => {
+      let resProduct = await homeApi.getStatisticProduct();
+      setValueProduct(resProduct);
+    }
+    loadData();
   }, []);
-
+  
   const handleSuccess = (res) => {
     console.log(res);
   };

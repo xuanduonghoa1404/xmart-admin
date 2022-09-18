@@ -196,11 +196,14 @@ function ExportInventoryManager(props) {
     setSearchText("");
   };
 
-  useEffect(async () => {
-    await getData();
-    await getDataInventory();
+  useEffect(() => {
+    const loadData = async () => {
+      await getData();
+      await getDataInventory();
+    }
+    loadData();
   }, []);
-
+  
   const getDataInventory = async () => {
     let res = await inventoryApi.getAllInventory();
 

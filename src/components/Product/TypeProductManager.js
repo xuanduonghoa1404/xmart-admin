@@ -220,11 +220,13 @@ function TypeProductManager(props) {
     setSearchText("");
   };
 
-  useEffect(async () => {
-    // setData(fakeData);
-    await getData();
+  useEffect(() => {
+    const loadData = async () => {
+      await getData();
+    }
+    loadData();
   }, []);
-
+  
   const getData = async () => {
     let res = await typeproductApi.getAllTypeProduct();
     // let resData = res.map((item, index) => {

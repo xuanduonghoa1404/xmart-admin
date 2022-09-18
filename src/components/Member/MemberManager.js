@@ -222,9 +222,11 @@ function MemberManager(props) {
     setSearchText("");
   };
 
-  useEffect(async () => {
-    // setData(fakeData);
-    await getData();
+  useEffect(() => {
+    const loadData = async () => {
+      await getData();
+    }
+    loadData();
   }, []);
 
   const getData = async () => {

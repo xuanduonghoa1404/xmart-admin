@@ -200,12 +200,15 @@ function ImportInventoryManager(props) {
     setSearchText("");
   };
 
-  useEffect(async () => {
-    await getData();
-    await getListLocator();
-    await getDataInventory();
+  useEffect(() => {
+    const loadData = async () => {
+      await getData();
+      await getListLocator();
+      await getDataInventory();
+    }
+    loadData();
   }, []);
-
+  
   const getDataInventory = async () => {
     let res = await inventoryApi.getAllInventory();
     setDataInventory(res);
