@@ -15,7 +15,9 @@ import {
   Upload,
   message,
   Switch,
-  Image
+  Image,
+  Row,
+  Col
 } from "antd";
 import productApi from "../../api/productApi";
 import marketingApi from "../../api/marketingApi";
@@ -61,7 +63,7 @@ function MarketingManager(props) {
   const [productList, setProductList] = useState([]);
   const cloudName = "hoaduonghx"; // replace with your own cloud name
   const uploadPreset = "anhakazk"; // replace with your own upload preset
-  
+
   // const [image, setImage] = useState('');
   // const [loadingImage, setLoadingImage] = useState(false);
 
@@ -143,7 +145,7 @@ function MarketingManager(props) {
   //     onError(err);
   //   }
   // };
-  
+
   // const uploadProps = {
   //   name: "file",
   //   customRequest: { serverUpload },
@@ -228,11 +230,13 @@ function MarketingManager(props) {
     form.setFieldsValue(data[0]);
     if (data[0].photo) setImageUrl(data[0].photo);
     setEditId(data[0]._id);
+    setApply(data[0].apply);
+    setCondition(data[0].condition);
     console.log('data[0].photo', data[0].photo);
   };
 
   const layout = {
-    labelCol: { span: 8 },
+    labelCol: { span: 6 },
     wrapperCol: { span: 16 },
   };
 
@@ -272,7 +276,7 @@ function MarketingManager(props) {
   const handleCancelModal = () => {
     setIsModalVisible(false);
   };
-  function removeAscent (str) {
+  function removeAscent(str) {
     if (str === null || str === undefined) return str;
     str = str.toLowerCase();
     str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
@@ -332,9 +336,9 @@ function MarketingManager(props) {
     onFilter: (value, record) =>
       record[dataIndex]
         ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+          .toString()
+          .toLowerCase()
+          .includes(value.toLowerCase())
         : "",
     onFilterDropdownVisibleChange: (visible) => {
       if (visible) {
@@ -376,7 +380,7 @@ function MarketingManager(props) {
 
   const getData = async () => {
     let res = await marketingApi.getAllMarketing();
-   
+
     let resData = res.map((item, index) => {
       return { ...item, key: index };
     });
@@ -525,6 +529,24 @@ function MarketingManager(props) {
     },
   ];
 
+  const [apply, setApply] = useState("ALL");
+  const [condition, setCondition] = useState("ALL");
+  const [discount, setDiscount] = useState("PERCENT");
+  const handleFormValuesChange = (changedValues) => {
+    console.log('changedValues', changedValues)
+    const formFieldName = Object.keys(changedValues)[0];
+    if (formFieldName === "apply") {
+      setApply(changedValues[formFieldName]);
+      // form.setFieldsValue({ apply: undefined }); //reset product selection
+    } else if (formFieldName === "condition") {
+      setCondition(changedValues[formFieldName]);
+    }
+    else if (formFieldName === "discount_type") {
+      setDiscount(changedValues[formFieldName]);
+    }
+
+  };
+  console.log('apply', apply)
   function onChange(pagination, filters, sorter, extra) {
     console.log("params", pagination, filters, sorter, extra);
     setPagination(pagination);
@@ -558,23 +580,77 @@ function MarketingManager(props) {
             onFinish={onFinishModal}
             validateMessages={validateMessages}
             form={form}
+            onValuesChange={handleFormValuesChange}
           >
-            <Form.Item name={"name"} label="Tên" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={"description"} label="Mô tả">
-              <TextArea rows="5" />
-            </Form.Item>
-            <Form.Item name={"status"} label="Trạng thái">
-              <Switch defaultChecked={true} checked={data.status ? (data.status || data.status == 'true' ? true : false) : true }/>
-            </Form.Item>
-            <Form.Item name={"apply"} label="Áp dụng">
-              <Select defaultValue={data.apply}>
-                <Option value="ALL">Tất cả sản phẩm</Option>
-                <Option value="TYPE">Loại sản phẩm</Option>
-                <Option value="PRODUCT">Từng sản phẩm</Option>
-              </Select>
-            </Form.Item>
+            <Row>
+              <Col span={12}>
+                <Form.Item name={"name"} label="Tên" rules={[{ required: true }]}>
+                  <Input />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name={"apply"} label="Áp dụng">
+                  <Select defaultValue={data.apply}>
+                    <Option value="ALL">Tất cả sản phẩm</Option>
+                    <Option value="TYPE">Loại sản phẩm</Option>
+                    <Option value="PRODUCT">Từng sản phẩm</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <Form.Item name={"description"} label="Mô tả">
+                  <TextArea rows="3" />
+                </Form.Item></Col>
+              <Col span={12}>
+                {apply === "TYPE" && <Form.Item name={"apply_type"} label="Loại">
+                  <Select
+                    placeholder="Chọn loại sản phẩm"
+                    defaultValue={data.apply_type}
+                    allowClear
+                    showSearch
+                    mode="multiple"
+                    filterOption={(input, option) => removeAscent(option.children).toLowerCase().includes(removeAscent(input).toLowerCase())}
+                  >
+                    {typeList.map((item) => {
+                      return <Option value={item._id}>{item.name}</Option>;
+                    })}
+                  </Select>
+                </Form.Item>}
+                {apply === "PRODUCT" && <Form.Item name={"apply_product"} label="Sản phẩm">
+                  <Select
+                    placeholder="Chọn sản phẩm"
+                    defaultValue={data.apply_product}
+                    allowClear
+                    showSearch
+                    mode="multiple"
+                    filterOption={(input, option) => removeAscent(option.children).toLowerCase().includes(removeAscent(input).toLowerCase())}
+                  >
+                    {productList.map((item) => {
+                      return <Option value={item._id}>{item.name}</Option>;
+                    })}
+                  </Select>
+                </Form.Item>}
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                <Form.Item name={"status"} label="Trạng thái">
+                  <Switch defaultChecked={true} checked={data.status ? (data.status || data.status == 'true' ? true : false) : true} />
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                <Form.Item name={"condition"} label="Điều kiện">
+                  <Select defaultValue={data.apply}>
+                    <Option value="ALL">Không</Option>
+                    <Option value="DATE">Dựa theo ngày sắp hết hạn</Option>
+                    <Option value="QTY">Dựa theo số lượng còn lại</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+            </Row>
+
             {/* {data.apply !== "ALL" && <Form.Item name={"apply"} label="Sản phẩm">
               <Select defaultValue={data.apply}>
                 <Option value="ALL">Tất cả sản phẩm</Option>
@@ -582,67 +658,75 @@ function MarketingManager(props) {
                 <Option value="PRODUCT">Từng sản phẩm</Option>
               </Select>
             </Form.Item>} */}
-            {data.apply === "TYPE" && <Form.Item name={"apply_type"} label="Loại">
-              <Select
-                placeholder="Chọn loại sản phẩm"
-                defaultValue={data.apply_type}
-                allowClear
-                showSearch
-                mode="multiple"
-                filterOption={(input, option) => removeAscent(option.children).toLowerCase().includes(removeAscent(input).toLowerCase())}
-              >
-                {typeList.map((item) => {
-                  return <Option value={item._id}>{item.name}</Option>;
-                })}
-              </Select>
-            </Form.Item> }
-            {data.apply === "PRODUCT" && <Form.Item name={"apply_product"} label="Sản phẩm">
-              <Select
-                placeholder="Chọn sản phẩm"
-                defaultValue={data.apply_product}
-                allowClear
-                showSearch
-                mode="multiple"
-                filterOption={(input, option) => removeAscent(option.children).toLowerCase().includes(removeAscent(input).toLowerCase())}
-              >
-                {productList.map((item) => {
-                  return <Option value={item._id}>{item.name}</Option>;
-                })}
-              </Select>
-            </Form.Item> }
+
             {/* <Form.Item name={"photo"} label="Ảnh quảng cáo">
               <input onChange={(e) => uploadImg(e)} type="file"/>
               </Form.Item> */}
+            <Row>
+              <Col span={12}>
+                <Form.Item name={"discount_type"} label="Khuyến mại" rules={[{ required: true }]}>
+                  <Select defaultValue={data.discount_type}>
+                    <Option value="PERCENT">KM theo phần trăm</Option>
+                    <Option value="FLAT">KM đồng giá</Option>
+                    <Option value="FIX_AMOUNT">KM theo số tiền</Option>
+                  </Select>
+                </Form.Item>
+              </Col>
+              <Col span={12}>
+                {condition === "DATE" && <Form.Item name={"condition_value"} label="Ngày">
+                  <InputNumber />
+                </Form.Item>}
+                {condition === "QTY" && <Form.Item name={"condition_value"} label="Số lượng">
+                  <InputNumber />
+                </Form.Item>}
+              </Col>
+            </Row>
+            <Row>
+              <Col span={12}>
+                {discount === "PERCENT" && <Form.Item name={"value"} label="Phần trăm" rules={[{ required: true }]}>
+                  <Input addonAfter="%" type="number"  />
+                </Form.Item>}
+                {discount === "FLAT" && <Form.Item name={"value"} label="Số tiền" rules={[{ required: true }]}>
+                  <Input addonAfter="đ" type="number" />
+                </Form.Item>}
+                {discount === "FIX_AMOUNT" && <Form.Item name={"value"} label="Số tiền" rules={[{ required: true }]}>
+                  <Input addonAfter="đ" type="number" />
+                </Form.Item>}
+              </Col>
+              <Col span={12}>
+
+              </Col>
+            </Row>
             <Form.Item name={"photo"} label="Đường dẫn ảnh">
-                <Input />
-              </Form.Item>
+              <Input />
+            </Form.Item>
             <Form.Item label="Ảnh quảng cáo">
               <Space size={12}>
                 {imageUrl ? <Image
-                width={500}
-                src={imageUrl}
-                placeholder={
-                  <Image
-                    preview={false}
-                    src=""
-                    width={200}
-                  />
-                }
+                  width={500}
+                  src={imageUrl}
+                  placeholder={
+                    <Image
+                      preview={false}
+                      src=""
+                      width={200}
+                    />
+                  }
                 /> : <Image
-                        width={200}
-                        height={200}
-                        src="error"
-                        fallback="data:image/png;base64,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"
-                      />}
-              <Button
-                type="primary"
+                  width={200}
+                  height={200}
+                  src="error"
+                  fallback="data:image/png;base64,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"
+                />}
+                <Button
+                  type="primary"
                   onClick={openWidget}
-              >
-                Chọn ảnh
+                >
+                  Chọn ảnh
                 </Button>
-                </Space>
-              </Form.Item>
-              {/* <input onChange={(e) => uploadImg(e)} type="file"/> */}
+              </Space>
+            </Form.Item>
+            {/* <input onChange={(e) => uploadImg(e)} type="file"/> */}
             {/* <Form.Item name={"photo"} label="Ảnh quảng cáo">
               <Upload
                 name="photo"
@@ -669,7 +753,7 @@ function MarketingManager(props) {
                 )}
               </Upload>
             </Form.Item> */}
-            <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+            <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 12 }}>
               <Button type="primary" htmlType="submit">
                 Lưu
               </Button>
