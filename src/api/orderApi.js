@@ -46,12 +46,12 @@ const orderApi = {
       throw error;
     }
   },
-  payOrderById: async (id, data) => {
+  changeStatusOrderById: async (id, data) => {
     try {
       const response = await axiosClient.patch(
         `api/order/${id}/status/${data}`
       );
-      notification.success({ message: "Thanh toán thành công!" });
+      notification.success({ message: "Thay đổi trạng thái đơn hàng thành công!" });
       return response;
     } catch (error) {
       throw error;

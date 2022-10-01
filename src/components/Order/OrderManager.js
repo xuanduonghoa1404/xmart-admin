@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -12,18 +12,25 @@ import {
   Form,
   Column,
   Select,
+  Descriptions,
+  Badge,
 } from "antd";
 import orderApi from "../../api/orderApi";
 import locatorApi from "../../api/locatorApi";
 import productApi from "../../api/productApi";
 import { FiEdit } from "react-icons/fi";
+import { FaShippingFast } from "react-icons/fa";
+import { FcCancel, FcProcess, FcShipped } from "react-icons/fc";
 import { RiDeleteBin6Line } from "react-icons/ri";
+import { BsCheckCircle } from "react-icons/bs";
+import { MdOutlineLocalShipping } from "react-icons/md";
 import Highlighter from "react-highlight-words";
-import { DollarOutlined, SearchOutlined } from "@ant-design/icons";
+import { DollarOutlined, SearchOutlined, EditOutlined, DeliveredProcedureOutlined } from "@ant-design/icons";
 import TextArea from "antd/lib/input/TextArea";
 import { Checkbox } from "antd";
 import jwt from "jsonwebtoken";
 const { Option } = Select;
+
 
 // function onChange(e) {
 //   console.log(`checked = ${e.target.checked}`);
@@ -43,17 +50,25 @@ function OrderManager(props) {
   const [dataMenu, setDataMenu] = useState([]);
   const [dataTable, setDataTable] = useState([]);
   const [dataProduct, setDataProduct] = useState([]);
+  const [orderDetail, setOrderDetail] = useState({});
   const [userEmail, setUserEmail] = useState(
     jwt.decode(localStorage.getItem("token")).email
   );
-
+  const ORDER_STATUS = new Map();
+  ORDER_STATUS.set('Not processed', { color: "red", valueVN: "Chưa xử lý" });
+  ORDER_STATUS.set('Processing', { color: "orange", valueVN: "Đã xác nhận" });
+  ORDER_STATUS.set('Shipped', { color: "blue", valueVN: "Đang vận chuyển" });
+  ORDER_STATUS.set('Delivered', { color: "green", valueVN: "Đã giao hàng" });
+  ORDER_STATUS.set('Cancelled', { color: "grey", valueVN: "Đã hủy" });
   const [form] = Form.useForm();
 
   const onFill = (data) => {
     form.setFieldsValue(data[0]);
     setEditId(data[0]._id);
+    setOrderDetail(data[0])
   };
 
+  console.log(orderDetail);
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -165,9 +180,9 @@ function OrderManager(props) {
     onFilter: (value, record) =>
       record[dataIndex]
         ? record[dataIndex]
-            .toString()
-            .toLowerCase()
-            .includes(value.toLowerCase())
+          .toString()
+          .toLowerCase()
+          .includes(value.toLowerCase())
         : "",
     onFilterDropdownVisibleChange: (visible) => {
       if (visible) {
@@ -233,19 +248,23 @@ function OrderManager(props) {
         _id: element._id,
         status: element.status,
         user: element.user !== null ? element.user?.name : "",
-        table: element.table !== null ? element.table?.name : "",
+        email: element.user !== null ? element.user?.email : "",
         totalPrice: element.totalPrice,
         key: index,
       };
       result.push(r);
     }
     let resData = res.map((item, index) => {
+      const created = new Date(item.created).toLocaleString();
+      const updated = new Date(item.updatedAt).toLocaleString();
       return {
         ...item,
         user: item.user?.name,
-        table: item.table?.name,
+        email: item.user?.email,
         key: index,
-        tableId: item.table?._id,
+        created: created,
+        updated: updated,
+        // tableId: item.table?._id,
       };
     });
 
@@ -253,11 +272,8 @@ function OrderManager(props) {
     setData(resData);
   };
 
-  const handlePayMoney = async (record, status) => {
-    const res = await orderApi.payOrderById(record._id, status);
-    if (record.table) {
-      const resStatus = await locatorApi.setStatusById(record.tableId, "free");
-    }
+  const handleChangeStatus = async (record, status) => {
+    const res = await orderApi.changeStatusOrderById(record._id, status);
     console.log(res);
     await getData();
   };
@@ -311,27 +327,39 @@ function OrderManager(props) {
       sorter: (a, b) => a.user?.length - b.user?.length,
       ...getColumnSearchProps("user"),
     },
-    // {
-    //   title: "Bàn",
-    //   dataIndex: "table",
-    //   sorter: (a, b) => a.description?.length - b.description?.length,
-    // },
+    {
+      title: "Email",
+      dataIndex: "email",
+      sorter: (a, b) => a.email?.length - b.email?.length,
+    },
     {
       title: "Tổng tiền",
-      dataIndex: "totalPrice",
-      sorter: (a, b) => a.price?.length - b.price?.length,
+      dataIndex: "total",
+      sorter: (a, b) => a.total?.length - b.total?.length,
     },
     {
       title: "Trạng thái",
       dataIndex: "status",
       filters: [
         {
-          text: "Đã thanh toán",
-          value: "paid",
+          text: "Chưa xử lý",
+          value: "Not processed",
         },
         {
-          text: "Chưa thanh toán",
-          value: "unpaid",
+          text: "Đã xác nhận",
+          value: "Processing",
+        },
+        {
+          text: "Đang vận chuyển",
+          value: "Shipped",
+        },
+        {
+          text: "Đã giao hàng",
+          value: "Delivered",
+        },
+        {
+          text: "Đã hủy",
+          value: "Cancelled",
         },
       ],
       onFilter: (value, record) => record.status === value,
@@ -340,13 +368,25 @@ function OrderManager(props) {
         let color;
         let valueVN;
         switch (status) {
-          case "unpaid":
+          case "Not processed":
             color = "red";
-            valueVN = "Chưa thanh toán";
+            valueVN = "Chưa xử lý";
             break;
-          case "paid":
+          case "Processing":
+            color = "orange";
+            valueVN = "Đã xác nhận";
+            break;
+          case "Shipped":
+            color = "blue";
+            valueVN = "Đang vận chuyển";
+            break;
+          case "Delivered":
             color = "green";
-            valueVN = "Đã thanh toán";
+            valueVN = "Đã giao hàng";
+            break;
+          case "Cancelled":
+            color = "grey";
+            valueVN = "Đã hủy";
             break;
         }
         return (
@@ -361,20 +401,50 @@ function OrderManager(props) {
       key: "action",
       render: (text, record) => (
         <Space size="middle">
-          {/* <a
+          <a
             onClick={() => {
               onFill(data.filter((item) => item._id === record._id));
               showModal("Sửa thông tin");
             }}
           >
-            <DollarOutlined style={{ color: "green", fontSize: "18px" }} />
-          </a> */}
-          <Popconfirm
+            <FiEdit style={{ color: "green", fontSize: "18px" }} />
+          </a>
+          <a
+            onClick={() => handleChangeStatus(record, "Not processed")}
+          >
+            <FcProcess style={{ color: "green", fontSize: "18px" }} />
+          </a>
+          <a
+            onClick={() => handleChangeStatus(record, "Processing")}
+          >
+            <BsCheckCircle style={{ color: "green", fontSize: "18px" }} />
+          </a>
+
+          <a
+            onClick={() => handleChangeStatus(record, "Shipped")}
+          >
+            <FaShippingFast style={{ color: "green", fontSize: "18px" }} />
+          </a>
+          <a
+            onClick={() => handleChangeStatus(record, "Delivered")}
+            title={"Xác nhận nhận hàng"}
+          >
+            <FcShipped style={{ color: "green", fontSize: "18px" }} />
+          </a>
+          {/* <Popconfirm
             title="Xác nhận thanh toán?"
-            onConfirm={() => handlePayMoney(record, "paid")}
+            onConfirm={() => handleChangeStatus(record, "paid")}
           >
             <a>
               <DollarOutlined style={{ color: "green", fontSize: "18px" }} />
+            </a>
+          </Popconfirm> */}
+          <Popconfirm
+            title="Bạn có muốn hủy đơn?"
+            onConfirm={() => handleChangeStatus(record, "Cancelled")}
+          >
+            <a>
+              <FcCancel color={"red"} size={"20px"} />
             </a>
           </Popconfirm>
           <Popconfirm
@@ -389,12 +459,65 @@ function OrderManager(props) {
       ),
     },
   ];
+  const columnsOrderDetail = [
+    {
+      title: "Tên sản phẩm",
+      dataIndex: "product",
+      key: 'name',
+      sorter: (a, b) => a.name?.length - b.name?.length,
+      render: item => item.name,
+    },
+    {
+      title: "Giá",
+      dataIndex: "purchasePrice",
+    },
+    {
+      title: "Số lượng",
+      dataIndex: "quantity",
+    },
+    {
+      title: "Tổng tiền",
+      dataIndex: "totalPrice",
+      sorter: (a, b) => a.totalPrice?.length - b.totalPrice?.length,
+    }
+  ];
 
   function onChange(pagination, filters, sorter, extra) {
     console.log("params", pagination, filters, sorter, extra);
     setPagination(pagination);
   }
 
+  const displayStatus = useCallback(() => {
+    let color;
+    let valueVN;
+    switch (orderDetail.status) {
+      case "Not processed":
+        color = "red";
+        valueVN = "Chưa xử lý";
+        break;
+      case "Processing":
+        color = "blue";
+        valueVN = "Đã xác nhận";
+        break;
+      case "Shipped":
+        color = "orange";
+        valueVN = "Đang vận chuyển";
+        break;
+      case "Delivered":
+        color = "green";
+        valueVN = "Đã giao hàng";
+        break;
+      case "Cancelled":
+        color = "grey";
+        valueVN = "Đã hủy";
+        break;
+    }
+    return (
+      <Tag color={color} key={orderDetail.status}>
+        {valueVN}
+      </Tag>
+    );
+  }, [orderDetail, setOrderDetail])
   return (
     <>
       <div>
@@ -412,6 +535,8 @@ function OrderManager(props) {
         <Modal
           footer={null}
           title={action}
+          style={{ top: 20 }}
+          width={1000}
           visible={isModalVisible}
           onOk={handleOkModal}
           onCancel={handleCancelModal}
@@ -423,7 +548,7 @@ function OrderManager(props) {
             validateMessages={validateMessages}
             form={form}
           >
-            <Form.Item
+            {/* <Form.Item
               name={"isOrderTable"}
               label=""
               rules={[{ required: false }]}
@@ -431,36 +556,49 @@ function OrderManager(props) {
               <Checkbox onChange={(e) => onChangeCheckBoxOrderTable(e)}>
                 Khách hàng đã đặt bàn trước
               </Checkbox>
+            </Form.Item> */}
+            {/* <Form.Item
+              name={"email"}
+              label="Email khách hàng"
+            >
+              <Input disabled={true} />
             </Form.Item>
-            {!isOrderTable ? (
-              <React.Fragment>
-                {/*Select order Table*/}
-                <Form.Item name={"table"} label="Bàn">
-                  <Select
-                    placeholder="Chọn bàn chưa đặt"
-                    // onChange={onRoleChange}
-                    allowClear
-                  >
-                    {/*<Option value="admin">Admin</Option>*/}
-                    {/*<Option value="cashier">Nhân viên thu ngân</Option>*/}
-                    {/*<Option value="inventoryManager">Nhân viên kho</Option>*/}
-                    {dataTable.map((item, index) => {
-                      return <Option value={item._id}>{item.name}</Option>;
-                    })}
-                  </Select>
-                </Form.Item>
-              </React.Fragment>
-            ) : (
-              <React.Fragment>
-                <Form.Item
-                  name={"email"}
-                  label="Email khách hàng"
-                  rules={[{ required: true }]}
-                >
-                  <Input />
-                </Form.Item>
-              </React.Fragment>
-            )}
+            <Form.Item
+              name={"created"}
+              label="Thời gian đặt hàng"
+            >
+              
+              <Input disabled={true} />
+            </Form.Item> */}
+            <Descriptions title="Thông tin đơn hàng " bordered>
+              <Descriptions.Item label="Họ tên khách hàng">{orderDetail.user}</Descriptions.Item>
+              <Descriptions.Item label="Email" span={2}>
+                {orderDetail.email}
+              </Descriptions.Item>
+              <Descriptions.Item label="Thời gian đặt hàng">{orderDetail.created}</Descriptions.Item>
+              <Descriptions.Item label="Thời gian chỉnh sửa" span={2}>
+                {orderDetail.updated}
+              </Descriptions.Item>
+              <Descriptions.Item label="Trạng thái" span={3}>
+                <Tag color={ORDER_STATUS.get(orderDetail.status || "")?.color} key={orderDetail.status}>
+                  {ORDER_STATUS.get(orderDetail.status || "")?.valueVN}
+                </Tag>
+              </Descriptions.Item>
+              <Descriptions.Item label="Tổng tiền hàng">{orderDetail.total}</Descriptions.Item>
+              <Descriptions.Item label="Giảm giá">0d</Descriptions.Item>
+              <Descriptions.Item label="Thành tiền">{orderDetail.total}</Descriptions.Item>
+              {/* <Descriptions.Item label="Chi tiết">
+                
+              </Descriptions.Item> */}
+            </Descriptions>
+            <br />
+            <Table
+              columns={columnsOrderDetail}
+              dataSource={orderDetail?.cart?.products}
+              pagination={pagination}
+              loading={loading}
+            />
+            
             {dataMenu.map((item, index) => {
               return (
                 <div
@@ -518,21 +656,21 @@ function OrderManager(props) {
           onChange={onChange}
           pagination={pagination}
           loading={loading}
-          expandable={{
-            expandedRowRender: (record) => {
-              let dataSourceRow = record.order.map((item, index) => {
-                return {
-                  ...item.product,
-                  amount: item.amount,
-                  totalProduct: item.amount * item.product.price,
-                  key: index,
-                  typeName: item.product.type.name,
-                };
-              });
-              return <Table columns={columnsRow} dataSource={dataSourceRow} />;
-            },
-            rowExpandable: (record) => record.name !== "Not Expandable",
-          }}
+        // expandable={{
+        //   expandedRowRender: (record) => {
+        //     let dataSourceRow = record.order.map((item, index) => {
+        //       return {
+        //         ...item.product,
+        //         amount: item.amount,
+        //         totalProduct: item.amount * item.product.price,
+        //         key: index,
+        //         typeName: item.product.type.name,
+        //       };
+        //     });
+        //     return <Table columns={columnsRow} dataSource={dataSourceRow} />;
+        //   },
+        //   rowExpandable: (record) => record.name !== "Not Expandable",
+        // }}
         />
       </div>
     </>

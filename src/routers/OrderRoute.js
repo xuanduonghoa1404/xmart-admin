@@ -1,4 +1,3 @@
-import Home from "../components/Home/Home";
 import React from "react";
 import { Route, Switch, useRouteMatch } from "react-router-dom";
 import OrderManager from "../components/Order/OrderManager";
