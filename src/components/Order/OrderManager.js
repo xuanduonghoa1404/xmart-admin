@@ -18,16 +18,19 @@ import {
 import orderApi from "../../api/orderApi";
 import locatorApi from "../../api/locatorApi";
 import productApi from "../../api/productApi";
-import { FiEdit } from "react-icons/fi";
-import { FaShippingFast } from "react-icons/fa";
+import { FiClock, FiEdit, FiMail } from "react-icons/fi";
+import { FaRegAddressBook, FaShippingFast } from "react-icons/fa";
 import { FcCancel, FcProcess, FcShipped } from "react-icons/fc";
 import { RiDeleteBin6Line } from "react-icons/ri";
 import { BsCheckCircle } from "react-icons/bs";
 import { MdOutlineLocalShipping } from "react-icons/md";
 import Highlighter from "react-highlight-words";
-import { DollarOutlined, SearchOutlined, EditOutlined, DeliveredProcedureOutlined } from "@ant-design/icons";
+import { DollarOutlined, SearchOutlined, EditOutlined, DeliveredProcedureOutlined, MailOutlined } from "@ant-design/icons";
 import TextArea from "antd/lib/input/TextArea";
 import { Checkbox } from "antd";
+import Board from '@asseinfo/react-kanban';
+import YourCard from '@asseinfo/react-kanban';
+import '@asseinfo/react-kanban/dist/styles.css';
 import jwt from "jsonwebtoken";
 const { Option } = Select;
 
@@ -61,6 +64,38 @@ function OrderManager(props) {
   ORDER_STATUS.set('Delivered', { color: "green", valueVN: "Đã giao hàng" });
   ORDER_STATUS.set('Cancelled', { color: "grey", valueVN: "Đã hủy" });
   const [form] = Form.useForm();
+
+  const [displayType, setDisplayType] = useState("board");
+  const specific = {
+    columns: [
+      {
+        id: 'Not processed',
+        title: 'Chưa xử lý',
+        cards: []
+      },
+      {
+        id: 'Processing',
+        title: 'Đã xác nhận',
+        cards: []
+      },
+      {
+        id: 'Shipped',
+        title: 'Đang vận chuyển',
+        cards: []
+      },
+      {
+        id: 'Delivered',
+        title: 'Đã giao hàng',
+        cards: []
+      },
+      {
+        id: 'Cancelled',
+        title: 'Đã hủy',
+        cards: []
+      },
+    ]
+  }
+  const [controlledBoard, setBoard] = useState(specific);
 
   const onFill = (data) => {
     form.setFieldsValue(data[0]);
@@ -220,6 +255,7 @@ function OrderManager(props) {
       await getDataProduct();
     }
     loadData();
+
   }, []);
 
   const getDataTable = async () => {
@@ -228,14 +264,12 @@ function OrderManager(props) {
     let resData = res.filter((item, index) => {
       return item.status === "free";
     });
-    console.log(res);
     setDataTable(resData);
   };
 
   const getDataProduct = async () => {
     let res = await productApi.getAllProduct();
 
-    console.log(res);
     setDataProduct(res);
   };
 
@@ -268,8 +302,87 @@ function OrderManager(props) {
       };
     });
 
-    console.log(res);
     setData(resData);
+    for (let i in resData) {
+      if (resData[i].status === "Not processed") {
+        let d = {
+          id: resData[i]._id,
+          title: resData[i].user,
+          description: (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiMail /> <span>{resData[i].email}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><DollarOutlined /> <span><strong>{resData[i].total}đ</strong></span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiClock /> <span>{resData[i].created}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FaRegAddressBook /> <span>{resData[i]?.address || 'Chưa có dữ liệu'}</span></div>
+            </>
+          ),
+          price: resData[i].totalPrice
+        }
+        specific.columns[0].cards.push(d)
+      } else if (resData[i].status === "Processing") {
+        let d = {
+          id: resData[i]._id,
+          title: resData[i].user,
+          description: (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiMail /> <span>{resData[i].email}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><DollarOutlined /> <span><strong>{resData[i].total}đ</strong></span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiClock /> <span>{resData[i].created}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FaRegAddressBook /> <span>{resData[i]?.address || 'Chưa có dữ liệu'}</span></div>
+            </>
+          ),
+          price: resData[i].totalPrice
+        }
+        specific.columns[1].cards.push(d)
+      } else if (resData[i].status === "Shipped") {
+        let d = {
+          id: resData[i]._id,
+          title: resData[i].user,
+          description: (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiMail /> <span>{resData[i].email}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><DollarOutlined /> <span><strong>{resData[i].total}đ</strong></span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiClock /> <span>{resData[i].created}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FaRegAddressBook /> <span>{resData[i]?.address || 'Chưa có dữ liệu'}</span></div>
+            </>
+          ),
+          price: resData[i].totalPrice
+        }
+        specific.columns[2].cards.push(d)
+      } else if (resData[i].status === "Delivered") {
+        let d = {
+          id: resData[i]._id,
+          title: resData[i].user,
+          description: (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiMail /> <span>{resData[i].email}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><DollarOutlined /> <span><strong>{resData[i].total}đ</strong></span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiClock /> <span>{resData[i].created}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FaRegAddressBook /> <span>{resData[i]?.address || 'Chưa có dữ liệu'}</span></div>
+            </>
+          ),
+          price: resData[i].totalPrice
+        }
+        specific.columns[3].cards.push(d)
+      } else if (resData[i].status === "Cancelled") {
+        let d = {
+          id: resData[i]._id,
+          title: resData[i].user,
+          description: (
+            <>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiMail /> <span>{resData[i].email}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><DollarOutlined /> <span><strong>{resData[i].total}đ</strong></span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FiClock /> <span>{resData[i].created}</span></div>
+              <div style={{ display: 'flex', alignItems: 'center', flexDirection: 'row', gap: '5px' }}><FaRegAddressBook /> <span>{resData[i]?.address || 'Chưa có dữ liệu'}</span></div>
+            </>
+          ),
+          price: resData[i].totalPrice
+        }
+        specific.columns[4].cards.push(d)
+      }
+    }
+
+    setBoard(specific)
   };
 
   const handleChangeStatus = async (record, status) => {
@@ -487,37 +600,12 @@ function OrderManager(props) {
     setPagination(pagination);
   }
 
-  const displayStatus = useCallback(() => {
-    let color;
-    let valueVN;
-    switch (orderDetail.status) {
-      case "Not processed":
-        color = "red";
-        valueVN = "Chưa xử lý";
-        break;
-      case "Processing":
-        color = "blue";
-        valueVN = "Đã xác nhận";
-        break;
-      case "Shipped":
-        color = "orange";
-        valueVN = "Đang vận chuyển";
-        break;
-      case "Delivered":
-        color = "green";
-        valueVN = "Đã giao hàng";
-        break;
-      case "Cancelled":
-        color = "grey";
-        valueVN = "Đã hủy";
-        break;
-    }
-    return (
-      <Tag color={color} key={orderDetail.status}>
-        {valueVN}
-      </Tag>
-    );
-  }, [orderDetail, setOrderDetail])
+  const changeStatusInBoard = async (board, card, source, destination) => {
+    const res = await orderApi.changeStatusOrderById(card.id, destination.toColumnId);
+    await getData();
+  }
+
+
   return (
     <>
       <div>
@@ -531,6 +619,19 @@ function OrderManager(props) {
           style={{ marginBottom: "16px" }}
         >
           Thêm sản phẩm
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            if (displayType === 'board') {
+              setDisplayType("table");
+            } else {
+              setDisplayType("board");
+            }
+          }}
+          style={{ marginBottom: "16px" }}
+        >
+          {displayType === 'board' ? 'Hiển thị bảng' : 'Hiển thị lưới'}
         </Button>
         <Modal
           footer={null}
@@ -598,7 +699,7 @@ function OrderManager(props) {
               pagination={pagination}
               loading={loading}
             />
-            
+
             {dataMenu.map((item, index) => {
               return (
                 <div
@@ -638,11 +739,13 @@ function OrderManager(props) {
                 </div>
               );
             })}
-            <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-              <Button htmlType="button" onClick={() => addMenu()}>
-                Thêm sản phẩm
-              </Button>
-            </Form.Item>
+            {orderDetail.status === "Not processed" &&
+              <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+                <Button htmlType="button" onClick={() => addMenu()}>
+                  Thêm sản phẩm
+                </Button>
+              </Form.Item>
+            }
             <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
               <Button type="primary" htmlType="submit">
                 Lưu
@@ -650,28 +753,44 @@ function OrderManager(props) {
             </Form.Item>
           </Form>
         </Modal>
-        <Table
-          columns={columns}
-          dataSource={data}
-          onChange={onChange}
-          pagination={pagination}
-          loading={loading}
-        // expandable={{
-        //   expandedRowRender: (record) => {
-        //     let dataSourceRow = record.order.map((item, index) => {
-        //       return {
-        //         ...item.product,
-        //         amount: item.amount,
-        //         totalProduct: item.amount * item.product.price,
-        //         key: index,
-        //         typeName: item.product.type.name,
-        //       };
-        //     });
-        //     return <Table columns={columnsRow} dataSource={dataSourceRow} />;
-        //   },
-        //   rowExpandable: (record) => record.name !== "Not Expandable",
-        // }}
-        />
+        {displayType === "table" &&
+          <Table
+            columns={columns}
+            dataSource={data}
+            onChange={onChange}
+            pagination={pagination}
+            loading={loading}
+          // expandable={{
+          //   expandedRowRender: (record) => {
+          //     let dataSourceRow = record.order.map((item, index) => {
+          //       return {
+          //         ...item.product,
+          //         amount: item.amount,
+          //         totalProduct: item.amount * item.product.price,
+          //         key: index,
+          //         typeName: item.product.type.name,
+          //       };
+          //     });
+          //     return <Table columns={columnsRow} dataSource={dataSourceRow} />;
+          //   },
+          //   rowExpandable: (record) => record.name !== "Not Expandable",
+          // }}
+          />}
+        {displayType === "board" &&
+          <Board initialBoard={controlledBoard} disableColumnDrag
+            onCardDragEnd={(board, card, source, destination) => {
+              changeStatusInBoard(board, card, source, destination)
+            }
+            }
+            // renderCard={({ card, cardBag }, { removeCard, dragging }) => (
+            //   <div dragging={dragging.toString()}>
+            //     {card}
+            //     {/* <button type="button" onClick={removeCard}>Remove Card</button> */}
+            //   </div>
+            // )}
+          />
+
+        }
       </div>
     </>
   );
