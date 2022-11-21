@@ -20,6 +20,22 @@ const homeApi = {
       throw error;
     }
   },
+  getStatisticOrder: async (begin, end) => {
+    try {
+      const response = await axiosClient.get(`api/statistic/order`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
+  getStatisticNumberOrder: async (begin, end) => {
+    try {
+      const response = await axiosClient.get(`api/statistic-number-order?begin=${begin}&end=${end}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default homeApi;

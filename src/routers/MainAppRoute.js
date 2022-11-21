@@ -12,6 +12,8 @@ import { Card } from "antd";
 
 const Home = lazy(() => import("./HomeRoute"));
 const OrderManager = lazy(() => import("./OrderRoute"));
+const OrderDetailManager = lazy(() => import("./OrderDetailRoute"));
+const OrderAddManager = lazy(() => import("./OrderAddRoute"));
 const ProductManager = lazy(() => import("./ProductRoute"));
 const TypeProductManager = lazy(() => import("./TypeProductRoute"));
 const MarketingManager = lazy(() => import("./MarketingRoute"));
@@ -32,8 +34,19 @@ function MainAppRoute(props) {
         <Switch>
           <PrivateRoute component={Home} exact path="/" />
           <PrivateRoute component={OrderManager} exact path="/order" />
+          <PrivateRoute component={OrderAddManager} exact path="/add-order" />
+          <PrivateRoute
+            component={OrderDetailManager}
+            exact
+            path="/order/:id"
+            render={(props) => <OrderDetailManager {...props} />}
+          />
           <PrivateRoute component={ProductManager} exact path="/product" />
-          <PrivateRoute component={TypeProductManager} exact path="/typeproduct" />
+          <PrivateRoute
+            component={TypeProductManager}
+            exact
+            path="/typeproduct"
+          />
           <PrivateRoute component={MarketingManager} exact path="/marketing" />
           <PrivateRoute component={InventoryManager} exact path="/inventory" />
           <PrivateRoute component={ImportInventory} path="/inventory/import" />

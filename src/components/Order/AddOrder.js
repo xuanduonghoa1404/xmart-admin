@@ -36,10 +36,9 @@ import { Checkbox } from "antd";
 import Board from "@asseinfo/react-kanban";
 import "@asseinfo/react-kanban/dist/styles.css";
 import jwt from "jsonwebtoken";
-import { Link } from "react-router-dom";
 const { Option } = Select;
 
-function OrderManager(props) {
+function AddOrder(props) {
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -56,6 +55,7 @@ function OrderManager(props) {
   const [userEmail, setUserEmail] = useState(
     jwt.decode(localStorage.getItem("token")).email
   );
+  console.log("AAAAAAAAAAAAAAAAADDDDDD");
   const ORDER_STATUS = new Map();
   ORDER_STATUS.set("Not processed", { color: "red", valueVN: "Chưa xử lý" });
   ORDER_STATUS.set("Processing", { color: "orange", valueVN: "Đã xác nhận" });
@@ -102,7 +102,6 @@ function OrderManager(props) {
     setOrderDetail(data[0]);
   };
 
-  console.log(orderDetail);
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -303,24 +302,9 @@ function OrderManager(props) {
     setData(resData);
     for (let i in resData) {
       if (resData[i].status === "Not processed") {
-        let urlOrder = `/order/${resData[i]._id}`;
         let d = {
           id: resData[i]._id,
-          title: (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "row",
-                gap: "5px",
-              }}
-            >
-              <span>{resData[i].user}</span>
-              <Link to={urlOrder} style={{ marginBottom: "3px" }}>
-                <FiEdit style={{ color: "green", fontSize: "18px" }} />
-              </Link>
-            </div>
-          ),
+          title: resData[i].user,
           description: (
             <>
               <div
@@ -373,24 +357,9 @@ function OrderManager(props) {
         };
         specific.columns[0].cards.push(d);
       } else if (resData[i].status === "Processing") {
-        let urlOrder = `/order/${resData[i]._id}`;
         let d = {
           id: resData[i]._id,
-          title: (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "row",
-                gap: "5px",
-              }}
-            >
-              <span>{resData[i].user}</span>
-              <Link to={urlOrder} style={{ marginBottom: "3px" }}>
-                <FiEdit style={{ color: "green", fontSize: "18px" }} />
-              </Link>
-            </div>
-          ),
+          title: resData[i].user,
           description: (
             <>
               <div
@@ -443,24 +412,9 @@ function OrderManager(props) {
         };
         specific.columns[1].cards.push(d);
       } else if (resData[i].status === "Shipped") {
-        let urlOrder = `/order/${resData[i]._id}`;
         let d = {
           id: resData[i]._id,
-          title: (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "row",
-                gap: "5px",
-              }}
-            >
-              <span>{resData[i].user}</span>
-              <Link to={urlOrder} style={{ marginBottom: "3px" }}>
-                <FiEdit style={{ color: "green", fontSize: "18px" }} />
-              </Link>
-            </div>
-          ),
+          title: resData[i].user,
           description: (
             <>
               <div
@@ -513,24 +467,9 @@ function OrderManager(props) {
         };
         specific.columns[2].cards.push(d);
       } else if (resData[i].status === "Delivered") {
-        let urlOrder = `/order/${resData[i]._id}`;
         let d = {
           id: resData[i]._id,
-          title: (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "row",
-                gap: "5px",
-              }}
-            >
-              <span>{resData[i].user}</span>
-              <Link to={urlOrder} style={{ marginBottom: "3px" }}>
-                <FiEdit style={{ color: "green", fontSize: "18px" }} />
-              </Link>
-            </div>
-          ),
+          title: resData[i].user,
           description: (
             <>
               <div
@@ -583,24 +522,9 @@ function OrderManager(props) {
         };
         specific.columns[3].cards.push(d);
       } else if (resData[i].status === "Cancelled") {
-        let urlOrder = `/order/${resData[i]._id}`;
         let d = {
           id: resData[i]._id,
-          title: (
-            <div
-              style={{
-                display: "flex",
-                alignItems: "center",
-                flexDirection: "row",
-                gap: "5px",
-              }}
-            >
-              <span>{resData[i].user}</span>
-              <Link to={urlOrder} style={{ marginBottom: "3px" }}>
-                <FiEdit style={{ color: "green", fontSize: "18px" }} />
-              </Link>
-            </div>
-          ),
+          title: resData[i].user,
           description: (
             <>
               <div
@@ -878,7 +802,7 @@ function OrderManager(props) {
   return (
     <>
       <div>
-        {/* <Button
+        <Button
           type="primary"
           onClick={() => {
             form.resetFields();
@@ -888,7 +812,7 @@ function OrderManager(props) {
           style={{ marginBottom: "16px" }}
         >
           Thêm sản phẩm
-        </Button> */}
+        </Button>
         <Button
           type="primary"
           onClick={() => {
@@ -1077,6 +1001,6 @@ function OrderManager(props) {
   );
 }
 
-OrderManager.propTypes = {};
+AddOrder.propTypes = {};
 
-export default OrderManager;
+export default AddOrder;

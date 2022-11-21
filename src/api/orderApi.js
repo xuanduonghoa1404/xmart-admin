@@ -19,6 +19,14 @@ const orderApi = {
       throw error;
     }
   },
+  getOrderById: async (id) => {
+    try {
+      const response = await axiosClient.get(`api/order/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
   editOrderById: async (id, data) => {
     try {
       const response = await axiosClient.patch(`api/order/${id}`, data);
@@ -51,7 +59,9 @@ const orderApi = {
       const response = await axiosClient.patch(
         `api/order/${id}/status/${data}`
       );
-      notification.success({ message: "Thay đổi trạng thái đơn hàng thành công!" });
+      notification.success({
+        message: "Thay đổi trạng thái đơn hàng thành công!",
+      });
       return response;
     } catch (error) {
       throw error;
