@@ -214,7 +214,7 @@ function ImportInventoryManager(props) {
     setDataInventory(res);
   };
   const getListLocator = async () => {
-    let res = await locatorApi.getAllTable();
+    let res = await locatorApi.getAllLocator();
     setListLocator(res);
   };
   const getData = async () => {

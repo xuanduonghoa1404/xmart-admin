@@ -256,7 +256,7 @@ function AddOrder(props) {
   }, []);
 
   const getDataTable = async () => {
-    let res = await locatorApi.getAllTable();
+    let res = await locatorApi.getAllLocator();
 
     let resData = res.filter((item, index) => {
       return item.status === "free";

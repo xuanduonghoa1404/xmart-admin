@@ -102,7 +102,6 @@ function OrderManager(props) {
     setOrderDetail(data[0]);
   };
 
-  console.log(orderDetail);
   const layout = {
     labelCol: { span: 8 },
     wrapperCol: { span: 16 },
@@ -257,7 +256,7 @@ function OrderManager(props) {
   }, []);
 
   const getDataTable = async () => {
-    let res = await locatorApi.getAllTable();
+    let res = await locatorApi.getAllLocator();
 
     let resData = res.filter((item, index) => {
       return item.status === "free";

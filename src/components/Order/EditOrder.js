@@ -33,6 +33,9 @@ import {
 } from "@ant-design/icons";
 import TextArea from "antd/lib/input/TextArea";
 import { Checkbox } from "antd";
+import L from "leaflet";
+import leafletKnn from "leaflet-knn";
+
 const { Option } = Select;
 const ORDER_STATUS = new Map();
 ORDER_STATUS.set("Not processed", { color: "red", valueVN: "Chưa xử lý" });
@@ -74,6 +77,19 @@ function EditOrder(props) {
   };
 
   const orderId = props.match.params.id.toString();
+  const listLocatorsFeature = {
+    type: "FeatureCollection",
+    features: [],
+  };
+  const convertLngLatToObjectJSON = (lng, lat) => {
+    return {
+      type: "Feature",
+      geometry: {
+        type: "Point",
+        coordinates: [lng, lat],
+      },
+    };
+  };
 
   useEffect(() => {
     const loadData = async () => {
@@ -83,15 +99,47 @@ function EditOrder(props) {
     loadData();
   }, []);
 
+  const handleSelectLocator = async (id, selectedLocator) => {
+    const res = await orderApi.shippingOrderById(id, selectedLocator);
+    await getData();
+  };
+  const handleChangeLocator = (value) => {
+    setSelectedLocator(value);
+  };
+  const handleSelectLocatorByDistance = () => {
+    console.log("handleSelectLocatorByDistance");
+    listLocator.map((locator) => {
+      listLocatorsFeature.features.push(
+        convertLngLatToObjectJSON(locator.lng, locator.lat)
+      );
+    });
+    let gj = L.geoJson(listLocatorsFeature);
+    let nearest = leafletKnn(gj).nearest(L.latLng(lnglat.lat, lnglat.lng), 1);
+    let selected = listLocator.find(
+      (locator) => locator.lat === nearest.lat && locator.lng === nearest.lon
+    );
+    // setSelectedLocator(value);
+    console.log("nearest", nearest, selected);
+  };
+  const formatDate = (inputDate) => {
+    const date = new Date(inputDate);
+    const hh = String(date.getHours()).padStart(2, "0");
+    const min = String(date.getMinutes()).padStart(2, "0");
+    const dd = String(date.getDate()).padStart(2, "0");
+    const mm = String(date.getMonth() + 1).padStart(2, "0");
+    const yy = date.getFullYear().toString();
+    return `${dd}/${mm}/${yy} ${hh}:${min}`;
+  };
   const getData = async () => {
     let res = await orderApi.getOrderById(orderId);
     let r = res.map((item, index) => {
       let result = {
-        created: item.created,
+        created: formatDate(item.created),
         status: item.status,
         total: item.total,
         cart: item.cart,
         user: item.user.name,
+        phone: item.user.phone,
         email: item.user.email,
         address: item.address,
         city: item.city,
@@ -100,6 +148,7 @@ function EditOrder(props) {
         zipCode: item.zipCode,
         lat: item.lat,
         lng: item.lng,
+        locator: item.locator,
       };
       return result;
     });
@@ -107,10 +156,12 @@ function EditOrder(props) {
       lng: r[0].lng,
       lat: r[0].lat,
     });
+    setSelectedLocator(r[0].locator);
     setOrderDetail(r[0]);
   };
+
   const getListLocator = async () => {
-    let res = await locatorApi.getAllTable();
+    let res = await locatorApi.getAllLocator();
     setListLocator(res);
   };
   const columnsOrderDetail = [
@@ -154,7 +205,9 @@ function EditOrder(props) {
           </Button>
           <Button
             type="primary"
-            onClick={() => {}}
+            onClick={() => {
+              handleSelectLocator(orderId, selectedLocator);
+            }}
             style={{ marginBottom: "16px" }}
           >
             Vận chuyển
@@ -168,8 +221,9 @@ function EditOrder(props) {
             marginLeft: "16px",
           }}
           placeholder="Chọn chi nhánh"
-          // defaultValue={selectedLocator}
-          // onChange={handleChangeLocator}
+          value={selectedLocator}
+          defaultValue={selectedLocator}
+          onChange={handleChangeLocator}
         >
           <Option value={"all"}>All</Option>
           {listLocator.map((item, index) => {
@@ -178,7 +232,9 @@ function EditOrder(props) {
         </Select>
         <Button
           type="primary"
-          onClick={() => {}}
+          onClick={() => {
+            handleSelectLocatorByDistance();
+          }}
           style={{ marginBottom: "16px", marginLeft: "16px" }}
         >
           Chọn địa chỉ vận chuyển gần nhất
@@ -199,8 +255,8 @@ function EditOrder(props) {
             <Descriptions.Item label="Thời gian đặt hàng">
               {orderDetail.created}
             </Descriptions.Item>
-            <Descriptions.Item label="Thời gian chỉnh sửa" span={2}>
-              {orderDetail.updated}
+            <Descriptions.Item label="Số điện thoại" span={2}>
+              {orderDetail.phone}
             </Descriptions.Item>
             <Descriptions.Item label="Trạng thái">
               <Tag
@@ -212,7 +268,7 @@ function EditOrder(props) {
             </Descriptions.Item>
             <Descriptions.Item label="Địa chỉ" span={2}>
               {`${orderDetail.address}, ${orderDetail.state}, ${orderDetail.city},
-              ${orderDetail.country}, ${orderDetail.state}`}
+              ${orderDetail.country}, ${orderDetail.zipCode}`}
             </Descriptions.Item>
             <Descriptions.Item label="Tổng tiền hàng">
               {orderDetail.total}

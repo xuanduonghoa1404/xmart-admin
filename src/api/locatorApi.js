@@ -2,7 +2,7 @@ import axiosClient from "./axiosClient";
 import { notification } from "antd";
 
 const locatorApi = {
-  getAllTable: async () => {
+  getAllLocator: async () => {
     try {
       const response = await axiosClient.get(`api/locator`);
       return response;
@@ -10,7 +10,7 @@ const locatorApi = {
       throw error;
     }
   },
-  deleteTableById: async (id) => {
+  deleteLocatorById: async (id) => {
     try {
       const response = await axiosClient.delete(`api/locator/${id}`);
       notification.success({ message: "Xóa thành công!" });
@@ -19,7 +19,7 @@ const locatorApi = {
       throw error;
     }
   },
-  editTableById: async (id, data) => {
+  editLocatorById: async (id, data) => {
     try {
       const response = await axiosClient.patch(`api/locator/${id}`, data);
       notification.success({ message: "Sửa thành công!" });
@@ -28,7 +28,7 @@ const locatorApi = {
       throw error;
     }
   },
-  createTable: async (data) => {
+  createLocator: async (data) => {
     try {
       const response = await axiosClient.post(`api/locator`, data);
       notification.success({ message: "Thêm bàn thành công!" });

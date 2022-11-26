@@ -67,6 +67,19 @@ const orderApi = {
       throw error;
     }
   },
+  shippingOrderById: async (id, data) => {
+    try {
+      const response = await axiosClient.patch(`api/order-ship/${id}`, {
+        locator: data,
+      });
+      notification.success({
+        message: "Chọn cửa hàng vận chuyển thành công!",
+      });
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
 };
 
 export default orderApi;

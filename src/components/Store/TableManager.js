@@ -59,149 +59,146 @@ function TableManager(props) {
   const onFinishModal = async (values) => {
     console.log(values);
     if (action == "Sửa thông tin") {
-        await locatorApi.editTableById(editId, values);
-      } else {
-        await locatorApi.createTable({...values});
-      }
-      await getData();
-      setIsModalVisible(false);
+      await locatorApi.editLocatorById(editId, values);
+    } else {
+      await locatorApi.createLocator({ ...values });
     }
-    ;
+    await getData();
+    setIsModalVisible(false);
+  };
+  const showModal = (type) => {
+    setAction(type);
+    setIsModalVisible(true);
+  };
 
-    const showModal = (type) => {
-      setAction(type);
-      setIsModalVisible(true);
-    };
+  const handleOkModal = () => {
+    setIsModalVisible(false);
+  };
 
-    const handleOkModal = () => {
-      setIsModalVisible(false);
-    };
+  const handleCancelModal = () => {
+    setIsModalVisible(false);
+  };
 
-    const handleCancelModal = () => {
-      setIsModalVisible(false);
-    };
+  let searchInput;
 
-    let searchInput;
-
-    const getColumnSearchProps = (dataIndex) => ({
-      filterDropdown: ({
-                         setSelectedKeys,
-                         selectedKeys,
-                         confirm,
-                         clearFilters,
-                       }) => (
-        <div style={{padding: 8}}>
-          <Input
-            ref={(node) => {
-              searchInput = node;
-            }}
-            placeholder={`Search ${dataIndex}`}
-            value={selectedKeys[0]}
-            onChange={(e) =>
-              setSelectedKeys(e.target.value ? [e.target.value] : [])
-            }
-            onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
-            style={{width: 188, marginBottom: 8, display: "block"}}
-          />
-          <Space>
-            <Button
-              type="primary"
-              onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
-              icon={<SearchOutlined/>}
-              size="small"
-              style={{width: 90}}
-            >
-              Search
-            </Button>
-            <Button
-              onClick={() => handleReset(clearFilters)}
-              size="small"
-              style={{width: 90}}
-            >
-              Reset
-            </Button>
-          </Space>
-        </div>
-      ),
-      filterIcon: (filtered) => (
-        <SearchOutlined style={{color: filtered ? "#1890ff" : undefined}}/>
-      ),
-      onFilter: (value, record) =>
-        record[dataIndex]
-          ? record[dataIndex]
+  const getColumnSearchProps = (dataIndex) => ({
+    filterDropdown: ({
+      setSelectedKeys,
+      selectedKeys,
+      confirm,
+      clearFilters,
+    }) => (
+      <div style={{ padding: 8 }}>
+        <Input
+          ref={(node) => {
+            searchInput = node;
+          }}
+          placeholder={`Search ${dataIndex}`}
+          value={selectedKeys[0]}
+          onChange={(e) =>
+            setSelectedKeys(e.target.value ? [e.target.value] : [])
+          }
+          onPressEnter={() => handleSearch(selectedKeys, confirm, dataIndex)}
+          style={{ width: 188, marginBottom: 8, display: "block" }}
+        />
+        <Space>
+          <Button
+            type="primary"
+            onClick={() => handleSearch(selectedKeys, confirm, dataIndex)}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+          <Button
+            onClick={() => handleReset(clearFilters)}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Reset
+          </Button>
+        </Space>
+      </div>
+    ),
+    filterIcon: (filtered) => (
+      <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />
+    ),
+    onFilter: (value, record) =>
+      record[dataIndex]
+        ? record[dataIndex]
             .toString()
             .toLowerCase()
             .includes(value.toLowerCase())
-          : "",
-      onFilterDropdownVisibleChange: (visible) => {
-        if (visible) {
-          setTimeout(() => searchInput.select(), 100);
-        }
-      },
-      render: (text) =>
-        searchedColumn === dataIndex ? (
-          <Highlighter
-            highlightStyle={{backgroundColor: "#ffc069", padding: 0}}
-            searchWords={[searchText]}
-            autoEscape
-            textToHighlight={text ? text.toString() : ""}
-          />
-        ) : (
-          text
-        ),
-    });
+        : "",
+    onFilterDropdownVisibleChange: (visible) => {
+      if (visible) {
+        setTimeout(() => searchInput.select(), 100);
+      }
+    },
+    render: (text) =>
+      searchedColumn === dataIndex ? (
+        <Highlighter
+          highlightStyle={{ backgroundColor: "#ffc069", padding: 0 }}
+          searchWords={[searchText]}
+          autoEscape
+          textToHighlight={text ? text.toString() : ""}
+        />
+      ) : (
+        text
+      ),
+  });
 
-    const handleSearch = (selectedKeys, confirm, dataIndex) => {
-      confirm();
-      setSearchText(selectedKeys[0]);
-      setSearchedColumn(dataIndex);
-    };
+  const handleSearch = (selectedKeys, confirm, dataIndex) => {
+    confirm();
+    setSearchText(selectedKeys[0]);
+    setSearchedColumn(dataIndex);
+  };
 
-    const handleReset = (clearFilters) => {
-      clearFilters();
-      setSearchText("");
-    };
+  const handleReset = (clearFilters) => {
+    clearFilters();
+    setSearchText("");
+  };
 
-   
   useEffect(() => {
     const loadData = async () => {
       await getData();
-    }
+    };
     loadData();
   }, []);
-  
-    const getData = async () => {
-      let res = await locatorApi.getAllTable();
-      let resData = res.map((item, index) => {
-        let color;
-        switch (item.status) {
-          case "admin":
-            color = "red";
-            break;
-          case "cashier":
-            color = "green";
-            break;
-          // case "customer": "blue"; break;
-          case "inventoryManager":
-            color = "blue";
-            break;
-        }
-        return {
-          ...item,
-          status: (
-            <Tag color={color} key={item.status}>
-              {item.status}
-            </Tag>
-          ),
-        };
-      });
-      console.log(res);
-      setData(res);
-    };
+
+  const getData = async () => {
+    let res = await locatorApi.getAllLocator();
+    let resData = res.map((item, index) => {
+      let color;
+      switch (item.status) {
+        case "admin":
+          color = "red";
+          break;
+        case "cashier":
+          color = "green";
+          break;
+        // case "customer": "blue"; break;
+        case "inventoryManager":
+          color = "blue";
+          break;
+      }
+      return {
+        ...item,
+        status: (
+          <Tag color={color} key={item.status}>
+            {item.status}
+          </Tag>
+        ),
+      };
+    });
+    console.log(res);
+    setData(res);
+  };
 
     const handleDelete = async (id) => {
       console.log(id);
-      const res = await locatorApi.deleteTableById(id);
+      const res = await locatorApi.deleteLocatorById(id);
       console.log(res);
       await getData();
     };
