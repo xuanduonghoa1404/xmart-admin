@@ -20,6 +20,7 @@
     "multer-storage-cloudinary": "^4.0.0",
     "prop-types": "^15.7.2",
     "react": "^16.14.0",
+    "react-dom": "^16.14.0",
     "react-chartjs-2": "^2.11.1",
     "react-csv": "^2.2.2",
     "react-csv-reader": "^3.5.0",
