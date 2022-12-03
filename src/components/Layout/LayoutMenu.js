@@ -60,9 +60,16 @@ function LayoutMenu(props) {
           style={collapsed ? { padding: "4px" } : { padding: "4px" }}
         >
           {/* <Logo height={collapsed ? "50px" : "100px"} /> */}
-          <img src={collapsed ? logo : logoFull} height={"60px"} />
+          <img
+            src={
+              collapsed
+                ? "https://res.cloudinary.com/hoaduonghx/image/upload/v1669541451/image/wsf2f8vtuxfdcuzpmxpg.png"
+                : "https://res.cloudinary.com/hoaduonghx/image/upload/v1669542110/image/yhoyntyb7v44rcecmxha.png"
+            }
+            height={"40px"}
+          />
         </div>
-        <Menu theme="dark"  defaultSelectedKeys={["1"]}>
+        <Menu theme="dark" defaultSelectedKeys={["1"]}>
           <Menu.Item key="1" icon={<HomeOutlined />}>
             {/* <Link to="/home">Home</Link> */}
             <Link to="/">Trang chủ</Link>
@@ -181,7 +188,15 @@ function LayoutMenu(props) {
             {children}
           </div>
         </Content>
-        <Footer style={{ textAlign: "center", color: "#ffffff", backgroundColor: "#333333" }}>QUẢN LÝ CHUỖI CỬA HÀNG X MART</Footer>
+        <Footer
+          style={{
+            textAlign: "center",
+            color: "#ffffff",
+            backgroundColor: "#333333",
+          }}
+        >
+          QUẢN LÝ CHUỖI CỬA HÀNG X MART
+        </Footer>
       </Layout>
     </Layout>
   );

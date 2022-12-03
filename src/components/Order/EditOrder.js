@@ -107,19 +107,22 @@ function EditOrder(props) {
     setSelectedLocator(value);
   };
   const handleSelectLocatorByDistance = () => {
-    console.log("handleSelectLocatorByDistance");
     listLocator.map((locator) => {
       listLocatorsFeature.features.push(
-        convertLngLatToObjectJSON(locator.lng, locator.lat)
+        convertLngLatToObjectJSON(locator?.lng || 0, locator?.lat || 0)
       );
     });
     let gj = L.geoJson(listLocatorsFeature);
-    let nearest = leafletKnn(gj).nearest(L.latLng(lnglat.lat, lnglat.lng), 1);
+    let nearest = leafletKnn(gj).nearest(
+      L.latLng(lnglat.lat, lnglat.lng),
+      1
+    )[0];
     let selected = listLocator.find(
-      (locator) => locator.lat === nearest.lat && locator.lng === nearest.lon
+      (locator) =>
+        locator?.lat?.toString() == nearest?.lat?.toString() &&
+        locator?.lng?.toString() == nearest?.lon?.toString()
     );
-    // setSelectedLocator(value);
-    console.log("nearest", nearest, selected);
+    setSelectedLocator(selected?._id);
   };
   const formatDate = (inputDate) => {
     const date = new Date(inputDate);
@@ -225,7 +228,7 @@ function EditOrder(props) {
           defaultValue={selectedLocator}
           onChange={handleChangeLocator}
         >
-          <Option value={"all"}>All</Option>
+          <Option value={""}>Chọn chi nhánh</Option>
           {listLocator.map((item, index) => {
             return <Option value={item._id}>{item.name}</Option>;
           })}
@@ -237,7 +240,7 @@ function EditOrder(props) {
           }}
           style={{ marginBottom: "16px", marginLeft: "16px" }}
         >
-          Chọn địa chỉ vận chuyển gần nhất
+          Chọn chi nhánh vận chuyển gần nhất
         </Button>
         <Form
           {...layout}
