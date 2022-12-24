@@ -275,11 +275,11 @@ function InventoryManager(props) {
       if (!item.inventory.length) {
         quantity = 0
       } else {
-        item.inventory.forEach((i) => {
-          i.imports.forEach((j) => {
-            quantity += j.quantity
-          })
-        })
+        item?.inventory.forEach((i) => {
+          i?.imports?.forEach((j) => {
+            quantity += j.quantity;
+          });
+        });
       }
       return {
         ...item,

@@ -11,8 +11,8 @@ import { notifFailure } from '../components/Shared/Notification';
 
 const axiosClient = axios.create({
   //timeout: 5000,
-  // baseURL: 'http://localhost:4000',
-  baseURL: "https://xmart-backend.vercel.app",
+  baseURL: "http://localhost:4000",
+  // baseURL: "https://xmart-backend.vercel.app",
   headers: {
     "Content-Type": "application/json",
   },

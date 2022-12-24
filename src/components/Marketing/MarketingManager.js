@@ -34,6 +34,8 @@ import TextArea from "antd/lib/input/TextArea";
 // import {CSVLink} from "react-csv";
 import typeProductApi from "../../api/typeProductApi";
 import axios from "axios";
+import { useHistory } from "react-router-dom";
+
 // import cloudinary from "../../configs/cloudinary.config";
 // const cloudinary = require('cloudinary').v2;
 
@@ -67,7 +69,7 @@ function MarketingManager(props) {
   // const [image, setImage] = useState('');
   // const [loadingImage, setLoadingImage] = useState(false);
 
-
+  const history = useHistory();
   const openWidget = () => {
     // create the widget
     const widget = window.cloudinary.createUploadWidget(
@@ -166,7 +168,6 @@ function MarketingManager(props) {
   //   onDrop: true
   // };
 
-
   function getBase64(img, callback) {
     const reader = new FileReader();
     reader.addEventListener("load", () => callback(reader.result));
@@ -186,7 +187,6 @@ function MarketingManager(props) {
   }
 
   const handleChangeAvatar = async (info) => {
-    console.log('info', info);
     setFileList(info.fileList);
     if (info.file.status === "uploading") {
       setLoadingPhoto(true);
@@ -232,7 +232,8 @@ function MarketingManager(props) {
     setEditId(data[0]._id);
     setApply(data[0].apply);
     setCondition(data[0].condition);
-    console.log('data[0].photo', data[0].photo);
+    console.log("data[0].status", data[0].status);
+    setStatus(data[0].status);
   };
 
   const layout = {
@@ -336,9 +337,9 @@ function MarketingManager(props) {
     onFilter: (value, record) =>
       record[dataIndex]
         ? record[dataIndex]
-          .toString()
-          .toLowerCase()
-          .includes(value.toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
         : "",
     onFilterDropdownVisibleChange: (visible) => {
       if (visible) {
@@ -374,7 +375,7 @@ function MarketingManager(props) {
       await getData();
       await getDataType();
       await getDataProduct();
-    }
+    };
     loadData();
   }, []);
 
@@ -384,8 +385,6 @@ function MarketingManager(props) {
     let resData = res.map((item, index) => {
       return { ...item, key: index };
     });
-    console.log(res);
-    // if (res.photo) setImageUrl(res.photo);
     setData(resData);
   };
 
@@ -399,9 +398,7 @@ function MarketingManager(props) {
   };
 
   const handleDelete = async (id) => {
-    console.log(id);
     const res = await marketingApi.deleteMarketingById(id);
-    console.log(res);
     await getData();
   };
 
@@ -531,24 +528,22 @@ function MarketingManager(props) {
 
   const [apply, setApply] = useState("ALL");
   const [condition, setCondition] = useState("ALL");
+  const [status, setStatus] = useState(true);
   const [discount, setDiscount] = useState("PERCENT");
   const handleFormValuesChange = (changedValues) => {
-    console.log('changedValues', changedValues)
     const formFieldName = Object.keys(changedValues)[0];
     if (formFieldName === "apply") {
       setApply(changedValues[formFieldName]);
       // form.setFieldsValue({ apply: undefined }); //reset product selection
     } else if (formFieldName === "condition") {
       setCondition(changedValues[formFieldName]);
-    }
-    else if (formFieldName === "discount_type") {
+    } else if (formFieldName === "status") {
+      setStatus(changedValues[formFieldName]);
+    } else if (formFieldName === "discount_type") {
       setDiscount(changedValues[formFieldName]);
     }
-
   };
-  console.log('apply', apply)
   function onChange(pagination, filters, sorter, extra) {
-    console.log("params", pagination, filters, sorter, extra);
     setPagination(pagination);
   }
 
@@ -564,6 +559,15 @@ function MarketingManager(props) {
           style={{ marginBottom: "16px" }}
         >
           Thêm chương trình khuyến mãi
+        </Button>
+        <Button
+          type="primary"
+          onClick={() => {
+            history.push("/design");
+          }}
+          style={{ marginBottom: "16px", marginLeft: "10px" }}
+        >
+          Thiết kế ảnh
         </Button>
         <Modal
           footer={null}
@@ -584,7 +588,11 @@ function MarketingManager(props) {
           >
             <Row>
               <Col span={12}>
-                <Form.Item name={"name"} label="Tên" rules={[{ required: true }]}>
+                <Form.Item
+                  name={"name"}
+                  label="Tên"
+                  rules={[{ required: true }]}
+                >
                   <Input />
                 </Form.Item>
               </Col>
@@ -602,42 +610,60 @@ function MarketingManager(props) {
               <Col span={12}>
                 <Form.Item name={"description"} label="Mô tả">
                   <TextArea rows="3" />
-                </Form.Item></Col>
+                </Form.Item>
+              </Col>
               <Col span={12}>
-                {apply === "TYPE" && <Form.Item name={"apply_type"} label="Loại">
-                  <Select
-                    placeholder="Chọn loại sản phẩm"
-                    defaultValue={data.apply_type}
-                    allowClear
-                    showSearch
-                    mode="multiple"
-                    filterOption={(input, option) => removeAscent(option.children).toLowerCase().includes(removeAscent(input).toLowerCase())}
-                  >
-                    {typeList.map((item) => {
-                      return <Option value={item._id}>{item.name}</Option>;
-                    })}
-                  </Select>
-                </Form.Item>}
-                {apply === "PRODUCT" && <Form.Item name={"apply_product"} label="Sản phẩm">
-                  <Select
-                    placeholder="Chọn sản phẩm"
-                    defaultValue={data.apply_product}
-                    allowClear
-                    showSearch
-                    mode="multiple"
-                    filterOption={(input, option) => removeAscent(option.children).toLowerCase().includes(removeAscent(input).toLowerCase())}
-                  >
-                    {productList.map((item) => {
-                      return <Option value={item._id}>{item.name}</Option>;
-                    })}
-                  </Select>
-                </Form.Item>}
+                {apply === "TYPE" && (
+                  <Form.Item name={"apply_type"} label="Loại">
+                    <Select
+                      placeholder="Chọn loại sản phẩm"
+                      defaultValue={data.apply_type}
+                      allowClear
+                      showSearch
+                      mode="multiple"
+                      filterOption={(input, option) =>
+                        removeAscent(option.children)
+                          .toLowerCase()
+                          .includes(removeAscent(input).toLowerCase())
+                      }
+                    >
+                      {typeList.map((item) => {
+                        return <Option value={item._id}>{item.name}</Option>;
+                      })}
+                    </Select>
+                  </Form.Item>
+                )}
+                {apply === "PRODUCT" && (
+                  <Form.Item name={"apply_product"} label="Sản phẩm">
+                    <Select
+                      placeholder="Chọn sản phẩm"
+                      defaultValue={data.apply_product}
+                      allowClear
+                      showSearch
+                      mode="multiple"
+                      filterOption={(input, option) =>
+                        removeAscent(option.children)
+                          .toLowerCase()
+                          .includes(removeAscent(input).toLowerCase())
+                      }
+                    >
+                      {productList.map((item) => {
+                        return <Option value={item._id}>{item.name}</Option>;
+                      })}
+                    </Select>
+                  </Form.Item>
+                )}
               </Col>
             </Row>
             <Row>
               <Col span={12}>
-                <Form.Item name={"status"} label="Trạng thái">
-                  <Switch defaultChecked={true} checked={data.status ? (data.status || data.status == 'true' ? true : false) : true} />
+                <Form.Item
+                  name={"status"}
+                  label="Trạng thái"
+                  valuePropName={status ? "checked" : ""}
+                  initialValue
+                >
+                  <Switch />
                 </Form.Item>
               </Col>
               <Col span={12}>
@@ -664,7 +690,11 @@ function MarketingManager(props) {
               </Form.Item> */}
             <Row>
               <Col span={12}>
-                <Form.Item name={"discount_type"} label="Khuyến mại" rules={[{ required: true }]}>
+                <Form.Item
+                  name={"discount_type"}
+                  label="Khuyến mại"
+                  rules={[{ required: true }]}
+                >
                   <Select defaultValue={data.discount_type}>
                     <Option value="PERCENT">KM theo phần trăm</Option>
                     <Option value="FLAT">KM đồng giá</Option>
@@ -673,55 +703,70 @@ function MarketingManager(props) {
                 </Form.Item>
               </Col>
               <Col span={12}>
-                {condition === "DATE" && <Form.Item name={"condition_value"} label="Ngày">
-                  <InputNumber />
-                </Form.Item>}
-                {condition === "QTY" && <Form.Item name={"condition_value"} label="Số lượng">
-                  <InputNumber />
-                </Form.Item>}
+                {condition === "DATE" && (
+                  <Form.Item name={"condition_value"} label="Ngày">
+                    <InputNumber />
+                  </Form.Item>
+                )}
+                {condition === "QTY" && (
+                  <Form.Item name={"condition_value"} label="Số lượng">
+                    <InputNumber />
+                  </Form.Item>
+                )}
               </Col>
             </Row>
             <Row>
               <Col span={12}>
-                {discount === "PERCENT" && <Form.Item name={"value"} label="Phần trăm" rules={[{ required: true }]}>
-                  <Input addonAfter="%" type="number"  />
-                </Form.Item>}
-                {discount === "FLAT" && <Form.Item name={"value"} label="Số tiền" rules={[{ required: true }]}>
-                  <Input addonAfter="đ" type="number" />
-                </Form.Item>}
-                {discount === "FIX_AMOUNT" && <Form.Item name={"value"} label="Số tiền" rules={[{ required: true }]}>
-                  <Input addonAfter="đ" type="number" />
-                </Form.Item>}
+                {discount === "PERCENT" && (
+                  <Form.Item
+                    name={"value"}
+                    label="Phần trăm"
+                    rules={[{ required: true }]}
+                  >
+                    <Input addonAfter="%" type="number" />
+                  </Form.Item>
+                )}
+                {discount === "FLAT" && (
+                  <Form.Item
+                    name={"value"}
+                    label="Số tiền"
+                    rules={[{ required: true }]}
+                  >
+                    <Input addonAfter="đ" type="number" />
+                  </Form.Item>
+                )}
+                {discount === "FIX_AMOUNT" && (
+                  <Form.Item
+                    name={"value"}
+                    label="Số tiền"
+                    rules={[{ required: true }]}
+                  >
+                    <Input addonAfter="đ" type="number" />
+                  </Form.Item>
+                )}
               </Col>
-              <Col span={12}>
-
-              </Col>
+              <Col span={12}></Col>
             </Row>
             <Form.Item name={"photo"} label="Đường dẫn ảnh">
               <Input />
             </Form.Item>
             <Form.Item label="Ảnh quảng cáo">
               <Space size={12}>
-                {imageUrl ? <Image
-                  width={500}
-                  src={imageUrl}
-                  placeholder={
-                    <Image
-                      preview={false}
-                      src=""
-                      width={200}
-                    />
-                  }
-                /> : <Image
-                  width={200}
-                  height={200}
-                  src="error"
-                  fallback="data:image/png;base64,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"
-                />}
-                <Button
-                  type="primary"
-                  onClick={openWidget}
-                >
+                {imageUrl ? (
+                  <Image
+                    width={500}
+                    src={imageUrl}
+                    placeholder={<Image preview={false} src="" width={200} />}
+                  />
+                ) : (
+                  <Image
+                    width={200}
+                    height={200}
+                    src="error"
+                    fallback="data:image/png;base64,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"
+                  />
+                )}
+                <Button type="primary" onClick={openWidget}>
                   Chọn ảnh
                 </Button>
               </Space>
@@ -770,9 +815,7 @@ function MarketingManager(props) {
             expandedRowRender: (record) => (
               <p style={{ margin: 0 }}>
                 <img
-                  src={
-                    `${record.photo || imageUrl}`
-                  }
+                  src={`${record.photo || imageUrl}`}
                   alt="image"
                   style={{}}
                 />

@@ -1,0 +1,59 @@
+.editor-wrapper {
+    display: grid;
+    grid-template-columns: 80px 300px auto 170px;
+}
+
+.action-canvas {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.image-editor-controls {}
+
+.image-editor-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.image-editor-menu div svg {
+    width: 26px;
+    height: 26px;
+}
+
+div[id^="tooltip-"] {
+    display: none;
+}
+
+.editor-title {
+    font-weight: 700;
+    margin-top: 15px;
+    margin-bottom: 5px;
+}
+
+.text-style {
+    height: 40px;
+    width: 40px;
+    border-radius: 50%;
+    display: inline-block;
+    cursor: pointer;
+    border: 2px solid hsla(0, 0%, 100%, .1);
+    background-color: rgba(0, 0, 0, .1);
+    transition: all .15s linear;
+    text-align: center;
+    margin-right: 8px;
+    padding: 5px 9px;
+}
+
+.text-color {
+    display: flex;
+    gap: 5px;
+}
+
+.color-circle {
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    cursor: pointer;
+}

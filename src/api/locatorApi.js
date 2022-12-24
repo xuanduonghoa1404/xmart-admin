@@ -10,6 +10,14 @@ const locatorApi = {
       throw error;
     }
   },
+  getLocatorById: async (id) => {
+    try {
+      const response = await axiosClient.get(`api/locator/${id}`);
+      return response;
+    } catch (error) {
+      throw error;
+    }
+  },
   deleteLocatorById: async (id) => {
     try {
       const response = await axiosClient.delete(`api/locator/${id}`);
