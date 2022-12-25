@@ -2,13 +2,15 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { fabric } from "fabric";
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, message, Select, Upload } from "antd";
+import { Button, Input, message, Select, Slider, Switch, Upload } from "antd";
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
 import {
   UndoOutlined,
   RedoOutlined,
   DownloadOutlined,
   CloudUploadOutlined,
+  LinkOutlined,
+  PlusOutlined,
   FileImageOutlined,
 } from "@ant-design/icons";
 import { Colorpicker, ColorPickerValue } from "antd-colorpicker";
@@ -35,15 +37,17 @@ import "./editorUI.css";
 import CanvasMenu from "./CanvasMenu";
 import ColorCircle from "./ColorCircle";
 
-const FontFaceObserver = require("fontfaceobserver");
-
+import FontFaceObserver from "fontfaceobserver";
+import typeProductApi from "../../api/typeProductApi";
+import productApi from "../../api/productApi";
+const { Option } = Select;
 function Design() {
   const cloudName = "hoaduonghx"; // replace with your own cloud name
   const uploadPreset = "anhakazk"; // replace with your own upload preset
   var canvas;
 
-  const [fontFamily, setFontFamily] = useState("today");
-  const [labelTextColor, setLabelTextColor] = useState("#000000");
+  const [fontFamily, setFontFamily] = useState("My Family");
+  const [labelTextColor, setLabelTextColor] = useState("#ffffff");
   const [backgroundTextColor, setBackgroundTextColor] = useState("transparent");
   const [brushColor, setBrushColor] = useState("#ffffff");
   const [brushWidth, setBrushWidth] = useState(1);
@@ -73,11 +77,15 @@ function Design() {
   const [errorSaveLabel, setErrorSaveLabel] = useState("");
   const [successSaveMessage, setSuccessSaveMessage] = useState("");
   const [failedSaveMessage, setFailedSaveMessage] = useState("");
-  const [breadcrumb, setBreadcrumb] = useState("Make Your Own Label");
   const [statusUndo, setStatusUndo] = useState(false);
   const [statusRedo, setStatusRedo] = useState(true);
   const [contextMenu, setContextMenu] = useState(null);
   const [activeModal, setActiveModal] = useState(false);
+
+  const [selectImage, setSelectImage] = useState("");
+  const [urlImage, setUrlImage] = useState("");
+  const [typeList, setTypeList] = useState([]);
+  const [productList, setProductList] = useState([]);
 
   let saveStack = false;
   let editText = false;
@@ -96,11 +104,27 @@ function Design() {
   var reader;
   useEffect(() => {
     reader = new FileReader();
-    console.log("FileReader", reader);
   }, []);
 
+  useEffect(() => {
+    const loadData = async () => {
+      await getDataType();
+      await getDataProduct();
+    };
+    loadData();
+  }, []);
+
+  const getDataType = async () => {
+    let res = await typeProductApi.getAllTypeProduct();
+    setTypeList(res);
+  };
+  const getDataProduct = async () => {
+    let res = await productApi.getAllProduct();
+    setProductList(res);
+  };
+
   const fonts = [
-    { label: "Anton-Regular", value: "Anton-Regular" },
+    { label: "Anton-Regular", value: "Anton" },
     { label: "Archivo-Bold", value: "Archivo-Bold" },
     { label: "Archivo-BoldItalic", value: "archivo_bold_italic" },
     { label: "Archivo-SemiBoldItalic", value: "archivo_semi_bold_italic" },
@@ -170,6 +194,19 @@ function Design() {
     { label: "Rubik-SemiBoldItalic", value: "rubik_semi_bold_italic" },
     { label: "Staatliches-Regular", value: "staatlic_regular" },
   ];
+
+  function removeAscent(str) {
+    if (str === null || str === undefined) return str;
+    str = str.toLowerCase();
+    str = str.replace(/à|á|ạ|ả|ã|â|ầ|ấ|ậ|ẩ|ẫ|ă|ằ|ắ|ặ|ẳ|ẵ/g, "a");
+    str = str.replace(/è|é|ẹ|ẻ|ẽ|ê|ề|ế|ệ|ể|ễ/g, "e");
+    str = str.replace(/ì|í|ị|ỉ|ĩ/g, "i");
+    str = str.replace(/ò|ó|ọ|ỏ|õ|ô|ồ|ố|ộ|ổ|ỗ|ơ|ờ|ớ|ợ|ở|ỡ/g, "o");
+    str = str.replace(/ù|ú|ụ|ủ|ũ|ư|ừ|ứ|ự|ử|ữ/g, "u");
+    str = str.replace(/ỳ|ý|ỵ|ỷ|ỹ/g, "y");
+    str = str.replace(/đ/g, "d");
+    return str;
+  }
 
   const mode = {
     pen: "pen",
@@ -295,6 +332,71 @@ function Design() {
   const [errorMessageValidate, setErrorMessageValidate] = useState("");
   const hasError = rejectedFiles.length > 0;
 
+  const toDataURL = (url) =>
+    fetch(url)
+      .then((response) => response.blob())
+      .then(
+        (blob) =>
+          new Promise((resolve, reject) => {
+            const readerImage = new FileReader();
+            readerImage.onloadend = () => resolve(readerImage.result);
+            readerImage.onerror = reject;
+            readerImage.readAsDataURL(blob);
+          })
+      );
+
+  // ***Here is code for converting "Base64" to javascript "File Object".***
+
+  function dataURLtoFile(dataurl, filename) {
+    let arr = dataurl.split(","),
+      mime = arr[0].match(/:(.*?);/)[1],
+      bstr = atob(arr[1]),
+      n = bstr.length,
+      u8arr = new Uint8Array(n);
+    while (n--) {
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, { type: mime });
+  }
+
+  const handleImageUrlUpload = useCallback((url) => {
+    if (url) {
+      toDataURL(url).then((dataUrl) => {
+        let fileData = dataURLtoFile(dataUrl, "imageName.jpg");
+        reader.readAsDataURL(fileData);
+      });
+    }
+  }, []);
+
+  const onChangeLinkImage = (e) => {
+    setUrlImage(e.target.value);
+  };
+  const changeCollection = (value) => {
+    if (value && value.length) {
+      let collection = typeList.filter((item) =>
+        value.includes(item._id.toString())
+      );
+
+      let lastItem = collection?.pop();
+      if (lastItem) {
+        handleImageUrlUpload(lastItem.photo);
+      }
+    }
+  };
+
+  const changeProduct = (value) => {
+    if (value && value.length) {
+      let collection = productList.filter((item) =>
+        value.includes(item._id.toString())
+      );
+
+      let lastItem = collection?.pop();
+      if (lastItem) {
+        handleImageUrlUpload(lastItem.photo);
+      }
+    }
+  };
+
   // undo, redo editor page
   const undo = useCallback(() => {
     if (undo_stack.length > 0) {
@@ -332,19 +434,7 @@ function Design() {
     () => setPopoverActive((popoverActive) => !popoverActive),
     []
   );
-  const loadAndUse = useCallback((font) => {
-    var myFont = new FontFaceObserver(font);
-    myFont
-      .load()
-      .then(function () {
-        // when font is loaded, use it.
-        canvas.getActiveObject().set("fontFamily", font);
-        canvas.requestRenderAll();
-      })
-      .catch(function (e) {
-        console.log(e);
-      });
-  }, []);
+
   const handleAddText = useCallback((value) => {
     var text = new fabric.IText("Tap and Type", {
       left: 50,
@@ -362,13 +452,33 @@ function Design() {
     setFontFamily(value);
     if (canvas.getActiveObject()) {
       if (value !== "Times New Roman") {
+        console.log("loadAndUse", value);
         loadAndUse(value);
       } else {
+        console.log("canvas.getActiveObject", value);
         canvas.getActiveObject().set("fontFamily", value);
         canvas.renderAll();
       }
     }
     setIsDirty(true);
+  }, []);
+
+  const loadAndUse = useCallback((font) => {
+    var myFont = new FontFaceObserver(font);
+    console.log("myFont", myFont);
+    // canvas.getActiveObject().set("fontFamily", "Anton");
+    // canvas.requestRenderAll();
+
+    myFont
+      .load()
+      .then(function () {
+        // when font is loaded, use it.
+        canvas.getActiveObject().set("fontFamily", font);
+        canvas.requestRenderAll();
+      })
+      .catch(function (e) {
+        console.log(e);
+      });
   }, []);
   const handleLabelTextColorChange = useCallback((value) => {
     setLabelTextColor(value);
@@ -431,8 +541,8 @@ function Design() {
     }
     setIsDirty(true);
   }, []);
-  const handleToggleBackground = useCallback((e) => {
-    if (e.target.checked) {
+  const handleToggleBackground = useCallback((checked) => {
+    if (checked) {
       setShowBackgroundField(true);
     } else {
       setShowBackgroundField(false);
@@ -441,8 +551,8 @@ function Design() {
     setIsDirty(true);
   }, []);
 
-  const handleToggleStroke = useCallback((e) => {
-    if (e.target.checked) {
+  const handleToggleStroke = useCallback((checked) => {
+    if (checked) {
       setShowStrokeField(true);
     } else {
       setShowStrokeField(false);
@@ -666,7 +776,7 @@ function Design() {
   }, []);
 
   const handleDrop = useCallback((acceptedFiles) => {
-    reader.readAsDataURL(acceptedFiles[0].originFileObj);
+    reader.readAsDataURL(acceptedFiles.pop().originFileObj);
     // if (acceptedFiles.length) {
     //   if (acceptedFiles[0].size <= 2 * 1000 * 1000) {
     //     const fileType = acceptedFiles[0].type.toLowerCase();
@@ -809,7 +919,7 @@ function Design() {
             <svg
               stroke="currentColor"
               fill="currentColor"
-              stroke-width="0"
+              strokeWidth="0"
               viewBox="0 0 24 24"
               height="1em"
               width="1em"
@@ -830,7 +940,7 @@ function Design() {
             <svg
               stroke="currentColor"
               fill="currentColor"
-              stroke-width="0"
+              strokeWidth="0"
               viewBox="0 0 24 24"
               height="1em"
               width="1em"
@@ -1027,6 +1137,10 @@ function Design() {
                 <div className="editor-title">Font Family</div>
                 <Select
                   options={fonts}
+                  style={{
+                    minWidth: 240,
+                    width: "fitContent",
+                  }}
                   onChange={handleFontFamilyChange}
                   value={fontFamily}
                 />
@@ -1080,35 +1194,126 @@ function Design() {
                   </span>
                 </div>
                 <div className="toggle-menu-item">
-                  <div className="font-w-7">Background</div>
-                  <label className="switch">
+                  <div className="editor-title">Background</div>
+                  <Switch
+                    checked={showBackgroundFied}
+                    onChange={handleToggleBackground}
+                  />
+                  {/* <label className="switch">
                     <input onClick={handleToggleBackground} type="checkbox" />
                     <span className="slider round" />
-                  </label>
+                  </label> */}
                 </div>
                 {showBackgroundFied && (
                   <div>
                     <div className="editor-title">Color</div>
+                    <div className="text-color">
+                      <Colorpicker
+                        popup
+                        blockStyles={{
+                          height: "25px",
+                        }}
+                      />
+                      <span
+                        onClick={() =>
+                          handleQuickSelectBackgroundText("#375e97")
+                        }
+                      >
+                        <ColorCircle color={"#375e97"} />
+                      </span>
+                      <span
+                        onClick={() =>
+                          handleQuickSelectBackgroundText("#fb6542")
+                        }
+                      >
+                        <ColorCircle color={"#fb6542"} />
+                      </span>
+                      <span
+                        onClick={() =>
+                          handleQuickSelectBackgroundText("#ffbb00")
+                        }
+                      >
+                        <ColorCircle color={"#ffbb00"} />
+                      </span>
+                      <span
+                        onClick={() =>
+                          handleQuickSelectBackgroundText("#f18d9e")
+                        }
+                      >
+                        <ColorCircle color={"#f18d9e"} />
+                      </span>
+                      <span
+                        onClick={() =>
+                          handleQuickSelectBackgroundText("#3681ce")
+                        }
+                      >
+                        <ColorCircle color={"#3681ce"} />
+                      </span>
+                    </div>
                   </div>
                 )}
                 <div className="toggle-menu-item">
-                  <div className="font-w-7">Stroke</div>
-                  <label className="switch">
+                  <div className="editor-title">Stroke</div>
+                  <Switch
+                    checked={showStrokeField}
+                    onChange={handleToggleStroke}
+                  />
+                  {/* <label className="switch">
                     <input onClick={handleToggleStroke} type="checkbox" />
                     <span className="slider round" />
-                  </label>
+                  </label> */}
                 </div>
 
                 {showStrokeField && (
                   <div>
                     <div className="editor-title">Color</div>
-
+                    <div className="text-color">
+                      <Colorpicker
+                        popup
+                        blockStyles={{
+                          height: "25px",
+                        }}
+                      />
+                      <span
+                        onClick={() => handleQuickSelectStrokeColor("#375e97")}
+                      >
+                        <ColorCircle color={"#375e97"} />
+                      </span>
+                      <span
+                        onClick={() => handleQuickSelectStrokeColor("#fb6542")}
+                      >
+                        <ColorCircle color={"#fb6542"} />
+                      </span>
+                      <span
+                        onClick={() => handleQuickSelectStrokeColor("#ffbb00")}
+                      >
+                        <ColorCircle color={"#ffbb00"} />
+                      </span>
+                      <span
+                        onClick={() => handleQuickSelectStrokeColor("#f18d9e")}
+                      >
+                        <ColorCircle color={"#f18d9e"} />
+                      </span>
+                      <span
+                        onClick={() => handleQuickSelectStrokeColor("#3681ce")}
+                      >
+                        <ColorCircle color={"#3681ce"} />
+                      </span>
+                    </div>
                     <div className="editor-title">Stroke Width</div>
+                    <div>
+                      <Slider
+                        value={strokeWidth}
+                        onChange={handleStrokeWidthChange}
+                        min={0}
+                        max={10}
+                      />
+                    </div>
                   </div>
                 )}
               </>
             ) : (
-              <p>Or choose a text object to edit</p>
+              <p>Hoặc chọn Văn bản để Sửa</p>
             )}
           </div>
         )}
@@ -1124,6 +1329,7 @@ function Design() {
                 // onClick={() => setOpenFileDialog(true)}
                 data="browse"
                 id="add-image-browse"
+                className="button-select-image"
               >
                 <Upload
                   accept={"image/*"}
@@ -1149,17 +1355,102 @@ function Design() {
                     return false;
                   }}
                 >
-                  <Button icon={<UploadOutlined />}>Upload Your Image</Button>
+                  <Button icon={<UploadOutlined />}>Tải ảnh lên</Button>
                 </Upload>
-                {/* <DropZone
-                  onFileDialogClose={() => setOpenFileDialog(false)}
-                  openFileDialog={openFileDialog}
-                  allowMultiple={false}
-                  accept="image/*"
-                  type="image"
-                >
-                  {fileUpload}
-                </DropZone> */}
+                <div className="select-image-url">
+                  <Button
+                    icon={<LinkOutlined />}
+                    onClick={() => setSelectImage("link")}
+                  >
+                    Liên kết ảnh
+                  </Button>
+                  {selectImage === "link" && (
+                    <div
+                      style={{ display: "flex", flexDirection: "row", gap: 5 }}
+                    >
+                      <Input
+                        placeholder="Điền liên kết ảnh"
+                        allowClear
+                        onChange={onChangeLinkImage}
+                      />
+                      <Button
+                        icon={<PlusOutlined />}
+                        onClick={() => handleImageUrlUpload(urlImage)}
+                      >
+                        Thêm
+                      </Button>
+                    </div>
+                  )}
+                </div>
+                <div className="select-image-url">
+                  <Button
+                    icon={<LinkOutlined />}
+                    onClick={() => setSelectImage("collection")}
+                  >
+                    Chọn loại sản phẩm
+                  </Button>
+                  {selectImage === "collection" && (
+                    <div
+                      style={{ display: "flex", flexDirection: "row", gap: 5 }}
+                    >
+                      <Select
+                        placeholder="Chọn loại sản phẩm"
+                        style={{
+                          minWidth: 240,
+                          width: "fitContent",
+                        }}
+                        allowClear
+                        showSearch
+                        // mode="multiple"
+                        filterOption={(input, option) =>
+                          removeAscent(option.children)
+                            .toLowerCase()
+                            .includes(removeAscent(input).toLowerCase())
+                        }
+                        onChange={changeCollection}
+                      >
+                        {typeList.map((item) => {
+                          return <Option value={item._id}>{item.name}</Option>;
+                        })}
+                      </Select>
+                    </div>
+                  )}
+                </div>
+                <div className="select-image-url">
+                  <Button
+                    icon={<LinkOutlined />}
+                    onClick={() => setSelectImage("product")}
+                  >
+                    Chọn sản phẩm
+                  </Button>
+                  {selectImage === "product" && (
+                    <div
+                      style={{ display: "flex", flexDirection: "row", gap: 5 }}
+                    >
+                      <Select
+                        placeholder="Chọn sản phẩm"
+                        style={{
+                          minWidth: 240,
+                          maxWidth: 280,
+                          width: "fitContent",
+                        }}
+                        allowClear
+                        showSearch
+                        // mode="multiple"
+                        filterOption={(input, option) =>
+                          removeAscent(option.children)
+                            .toLowerCase()
+                            .includes(removeAscent(input).toLowerCase())
+                        }
+                        onChange={changeProduct}
+                      >
+                        {productList.map((item) => {
+                          return <Option value={item._id}>{item.name}</Option>;
+                        })}
+                      </Select>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -1208,9 +1499,9 @@ function Design() {
         >
           Tải về máy
         </Button>
-        <Button type="primary" icon={<CloudUploadOutlined />}>
+        {/* <Button type="primary" icon={<CloudUploadOutlined />}>
           Lưu trữ trên Cloud
-        </Button>
+        </Button> */}
       </div>
     </div>
   );
