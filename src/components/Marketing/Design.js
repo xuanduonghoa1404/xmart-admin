@@ -2,7 +2,16 @@ import React, { useCallback, useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import { fabric } from "fabric";
 import { UploadOutlined } from "@ant-design/icons";
-import { Button, Input, message, Select, Slider, Switch, Upload } from "antd";
+import {
+  Button,
+  Input,
+  message,
+  Modal,
+  Select,
+  Slider,
+  Switch,
+  Upload,
+} from "antd";
 import { FabricJSCanvas, useFabricJSEditor } from "fabricjs-react";
 import {
   UndoOutlined,
@@ -13,7 +22,7 @@ import {
   PlusOutlined,
   FileImageOutlined,
 } from "@ant-design/icons";
-import { Colorpicker, ColorPickerValue } from "antd-colorpicker";
+import { Colorpicker } from "antd-colorpicker";
 import {
   BsType,
   BsTypeBold,
@@ -215,20 +224,11 @@ function Design() {
     image: "image",
     free: "",
   };
-  // const [canvas, setCanvas] = useState("");
-  // useEffect(() => {
-  //   setCanvas(initCanvas());
-  // }, []);
-  // const initCanvas = () =>
-  //   new fabric.Canvas("canvas", {
-  //     height: 800,
-  //     width: 800,
-  //     backgroundColor: "pink",
-  //   });
+
   useEffect(() => {
     let canvasW, canvasH;
-    canvasW = 580;
-    canvasH = 250;
+    canvasW = 608;
+    canvasH = 320;
     // if ($(window).width() < 1225) {
     //   canvasW = 300;
     //   canvasH = 300;
@@ -270,12 +270,7 @@ function Design() {
       }
     });
 
-    //add img default
-    // handleAddImageToCanvasFromUrl(
-    //   `https://res.cloudinary.com/hoaduonghx/image/upload/v1670163364/image/Banner6_pi5vpd.png`
-    // );
-    //add img default
-    let text = new fabric.IText("Sale", {
+    let text = new fabric.IText("Sale 10%", {
       left: 50,
       top: 85,
       fill: labelTextColor,
@@ -327,10 +322,6 @@ function Design() {
     // document.getElementById("redo").addEventListener("click", redo);
   }, []);
   const [files, setFiles] = useState([]);
-  const [openFileDialog, setOpenFileDialog] = useState(false);
-  const [rejectedFiles, setRejectedFiles] = useState([]);
-  const [errorMessageValidate, setErrorMessageValidate] = useState("");
-  const hasError = rejectedFiles.length > 0;
 
   const toDataURL = (url) =>
     fetch(url)
@@ -481,9 +472,9 @@ function Design() {
       });
   }, []);
   const handleLabelTextColorChange = useCallback((value) => {
-    setLabelTextColor(value);
+    setLabelTextColor(value.hex);
     if (canvas.getActiveObject()) {
-      canvas.getActiveObject().set("fill", value);
+      canvas.getActiveObject().set("fill", value.hex);
       canvas.renderAll();
     }
     setIsDirty(true);
@@ -498,9 +489,9 @@ function Design() {
   }, []);
 
   const handleBackgroundTextColorChange = useCallback((value) => {
-    setBackgroundTextColor(value);
+    setBackgroundTextColor(value.hex);
     if (canvas.getActiveObject()) {
-      canvas.getActiveObject().set("textBackgroundColor", value);
+      canvas.getActiveObject().set("textBackgroundColor", value.hex);
       canvas.renderAll();
     }
     setIsDirty(true);
@@ -646,7 +637,6 @@ function Design() {
       if (popoverActive) {
         togglePopoverActive();
       }
-      console.log("handleShowMenuToolArea", value);
       if (value == mode.pen) {
         if (currentMode == mode.pen) {
           setCurrentMode(mode.free);
@@ -700,7 +690,6 @@ function Design() {
   }, []);
 
   const handleShowPenTool = useCallback(() => {
-    console.log("canvas.isDrawingMode", canvas.isDrawingMode);
     if (!canvas.isDrawingMode) {
       canvas.freeDrawingBrush.width = brushWidth;
       canvas.freeDrawingBrush.color = brushColor;
@@ -765,6 +754,20 @@ function Design() {
     canvas.renderAll();
     setIsDirty(true);
   }, []);
+
+  const handleClearCanvas = useCallback(() => {
+    canvas.getObjects().forEach((obj) => {
+      canvas.remove(obj);
+    });
+    setStatusUndo(false);
+    setStatusRedo(true);
+    setIsDirty(true);
+    handleModalClearCanvas();
+  }, []);
+
+  const handleModalClearCanvas = useCallback(() => {
+    setActiveModal((active) => !active);
+  });
 
   const handleRemoveObject = useCallback(() => {
     if (canvas.getActiveObject()) {
@@ -874,47 +877,55 @@ function Design() {
             onMouseEnter={() => setActiveToolTip(tooltips.image)}
             onMouseLeave={() => setActiveToolTip(false)}
             onClick={() => handleShowMenuToolArea(mode.image)}
-            // className={classNames("image-editor-item", {
-            //   active: currentMode == mode.image,
-            // })}
+            className={`image-editor-item ${
+              currentMode == mode.image ? "active" : ""
+            }`}
           >
-            <FileImageOutlined style={{ color: "blue" }} />
+            <FileImageOutlined
+              style={{ color: `${currentMode == mode.image ? "blue" : ""}` }}
+            />
           </div>
           <div
             onMouseEnter={() => setActiveToolTip(tooltips.select)}
             onMouseLeave={() => setActiveToolTip(false)}
             onClick={() => handleShowMenuToolArea(mode.select)}
-            // className={classNames("image-editor-item", {
-            //   active: currentMode == mode.select,
-            // })}
+            className={`image-editor-item ${
+              currentMode == mode.select ? "active" : ""
+            }`}
           >
-            <HiCursorClick />
+            <HiCursorClick
+              style={{ color: `${currentMode == mode.select ? "blue" : ""}` }}
+            />
           </div>
           <div
             onMouseEnter={() => setActiveToolTip(tooltips.text)}
             onMouseLeave={() => setActiveToolTip(false)}
             onClick={() => handleShowMenuToolArea(mode.text)}
-            // className={classNames("image-editor-item", {
-            //   active: currentMode == mode.text,
-            // })}
+            className={`image-editor-item ${
+              currentMode == mode.text ? "active" : ""
+            }`}
           >
-            <BsType />
+            <BsType
+              style={{ color: `${currentMode == mode.text ? "blue" : ""}` }}
+            />
           </div>
           <div
             onMouseEnter={() => setActiveToolTip(tooltips.brush)}
             onMouseLeave={() => setActiveToolTip(false)}
             onClick={() => handleShowMenuToolArea(mode.pen)}
-            // className={classNames("image-editor-item", {
-            //   active: currentMode == mode.pen,
-            // })}
+            className={`image-editor-item ${
+              currentMode == mode.pen ? "active" : ""
+            }`}
           >
-            <FaPaintBrush />
+            <FaPaintBrush
+              style={{ color: `${currentMode == mode.pen ? "blue" : ""}` }}
+            />
           </div>
           <div
             onMouseEnter={() => setActiveToolTip(tooltips.front)}
             onMouseLeave={() => setActiveToolTip(false)}
             onClick={() => handleBringToFront()}
-            // className={classNames("image-editor-item")}
+            className={`image-editor-item`}
           >
             <svg
               stroke="currentColor"
@@ -935,7 +946,7 @@ function Design() {
             onMouseEnter={() => setActiveToolTip(tooltips.back)}
             onMouseLeave={() => setActiveToolTip(false)}
             onClick={() => handleSendToBack()}
-            // className={classNames("image-editor-item")}
+            className={`image-editor-item`}
           >
             <svg
               stroke="currentColor"
@@ -956,15 +967,15 @@ function Design() {
             onMouseEnter={() => setActiveToolTip(tooltips.remove)}
             onMouseLeave={() => setActiveToolTip(false)}
             onClick={() => handleRemoveObject()}
-            // className={classNames("image-editor-item")}
+            className={`image-editor-item`}
           >
             <MdCancel />
           </div>
           <div
             onMouseEnter={() => setActiveToolTip(tooltips.clear)}
             onMouseLeave={() => setActiveToolTip(false)}
-            // onClick={() => handleModalClearCanvas()}
-            // className={classNames("image-editor-item")}
+            onClick={() => handleModalClearCanvas()}
+            className={`image-editor-item`}
           >
             <MdDelete />
           </div>
@@ -1100,31 +1111,18 @@ function Design() {
             alt="Clear all object"
           />
           <p>
-            <label>Clear All</label>
+            <label>Xóa tất cả</label>
             Clear all object.
           </p>
         </div>
-        {/* <Modal
-          open={activeModal}
-          onClose={handleModalClearCanvas}
-          title="Clear all objects"
-          primaryAction={{
-            content: "Clear all",
-            onAction: handleClearCanvas,
-          }}
-          secondaryActions={[
-            {
-              content: "Cancel",
-              onAction: handleModalClearCanvas,
-            },
-          ]}
+        <Modal
+          title="Xóa tất cả"
+          visible={activeModal}
+          onOk={handleClearCanvas}
+          onCancel={handleModalClearCanvas}
         >
-          <Modal.Section>
-            <TextContainer>
-              <p>Are you sure to clear all objects?</p>
-            </TextContainer>
-          </Modal.Section>
-        </Modal> */}
+          <p>Bạn chắc chắn xóa tất cả?</p>
+        </Modal>
       </div>
       <div className="image-editor-main">
         {currentMode == mode.text && (
@@ -1166,6 +1164,8 @@ function Design() {
                     blockStyles={{
                       height: "25px",
                     }}
+                    value={labelTextColor}
+                    onChange={handleLabelTextColorChange}
                   />
                   <span
                     onClick={() => handleQuickSelectLabelTextColor("#375e97")}
@@ -1213,6 +1213,8 @@ function Design() {
                         blockStyles={{
                           height: "25px",
                         }}
+                        value={backgroundTextColor}
+                        onChange={handleBackgroundTextColorChange}
                       />
                       <span
                         onClick={() =>
@@ -1273,6 +1275,8 @@ function Design() {
                         blockStyles={{
                           height: "25px",
                         }}
+                        value={strokeColor}
+                        onChange={(value) => handleStrokeColorChange(value.hex)}
                       />
                       <span
                         onClick={() => handleQuickSelectStrokeColor("#375e97")}
@@ -1320,6 +1324,45 @@ function Design() {
         {currentMode == mode.pen && (
           <div className="text-edit-area">
             <div className="editor-title">Color</div>
+            <div className="text-color">
+              <Colorpicker
+                popup
+                blockStyles={{
+                  height: "25px",
+                }}
+                value={brushColor}
+                onChange={(value) => handleChangeBrushColor(value.hex)}
+              />
+              <span onClick={() => handleQuickSelectBrushColor("#375e97")}>
+                <ColorCircle color={"#375e97"} />
+              </span>
+              <span onClick={() => handleQuickSelectBrushColor("#fb6542")}>
+                <ColorCircle color={"#fb6542"} />
+              </span>
+              <span onClick={() => handleQuickSelectBrushColor("#ffbb00")}>
+                <ColorCircle color={"#ffbb00"} />
+              </span>
+              <span onClick={() => handleQuickSelectBrushColor("#f18d9e")}>
+                <ColorCircle color={"#f18d9e"} />
+              </span>
+              <span onClick={() => handleQuickSelectBrushColor("#3681ce")}>
+                <ColorCircle color={"#3681ce"} />
+              </span>
+            </div>
+            <div className="editor-title">Width</div>
+            {/* <RangeSlider
+                    value={brushWidth}
+                    onChange={handleChangeBrushWidth}
+                    min={1}
+                    max={30}
+                    output
+                  /> */}
+            <Slider
+              value={brushWidth}
+              onChange={handleChangeBrushWidth}
+              min={0}
+              max={10}
+            />
           </div>
         )}
         {currentMode == mode.image && (

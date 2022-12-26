@@ -17,7 +17,9 @@ import {
   Switch,
   Image,
   Row,
-  Col
+  Col,
+  DatePicker,
+  TimePicker,
 } from "antd";
 import productApi from "../../api/productApi";
 import marketingApi from "../../api/marketingApi";
@@ -35,12 +37,13 @@ import TextArea from "antd/lib/input/TextArea";
 import typeProductApi from "../../api/typeProductApi";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
 
 // import cloudinary from "../../configs/cloudinary.config";
 // const cloudinary = require('cloudinary').v2;
 
 const { Option } = Select;
-
 function MarketingManager(props) {
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
   const [loading, setLoading] = useState(false);
@@ -65,6 +68,8 @@ function MarketingManager(props) {
   const [productList, setProductList] = useState([]);
   const cloudName = "hoaduonghx"; // replace with your own cloud name
   const uploadPreset = "anhakazk"; // replace with your own upload preset
+  const dateFormatList = ["DD/MM/YYYY", "DD/MM/YY"];
+  // dayjs.extend(customParseFormat);
 
   // const [image, setImage] = useState('');
   // const [loadingImage, setLoadingImage] = useState(false);
@@ -703,6 +708,16 @@ function MarketingManager(props) {
                 </Form.Item>
               </Col>
               <Col span={12}>
+                {condition === "ALL" && (
+                  <Form.Item name={"dateFrom"} label="Từ ngày">
+                    {/* <DatePicker
+                      format={dateFormatList}
+                      showTime={{
+                        defaultValue: dayjs("00:00:00", "HH:mm:ss"),
+                      }}
+                    /> */}
+                  </Form.Item>
+                )}
                 {condition === "DATE" && (
                   <Form.Item name={"condition_value"} label="Ngày">
                     <InputNumber />

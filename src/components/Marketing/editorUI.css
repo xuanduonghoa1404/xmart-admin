@@ -101,3 +101,9 @@ div[id^="tooltip-"] {
 .ant-upload-list {
     display: none;
 }
+.image-editor-item {
+    vertical-align: middle;
+    /* height: 50px; */
+    cursor: pointer;
+    /* padding: 10px 20px; */
+}
