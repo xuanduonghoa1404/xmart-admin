@@ -62,17 +62,13 @@ function InventoryManager(props) {
   };
 
   const onFinishModal = async (values) => {
-    console.log(values);
     if (action == "Sửa thông tin") {
       await inventoryApi.editInventoryById(editId, values);
-    } else {
-      await inventoryApi.createInventory({ ...values });
     }
+
     await getData();
     setIsModalVisible(false);
-  }
-    ;
-
+  };
   const showModal = (type) => {
     setAction(type);
     setIsModalVisible(true);
@@ -134,9 +130,9 @@ function InventoryManager(props) {
     onFilter: (value, record) =>
       record[dataIndex]
         ? record[dataIndex]
-          .toString()
-          .toLowerCase()
-          .includes(value.toLowerCase())
+            .toString()
+            .toLowerCase()
+            .includes(value.toLowerCase())
         : "",
     onFilterDropdownVisibleChange: (visible) => {
       if (visible) {
@@ -171,7 +167,7 @@ function InventoryManager(props) {
     const loadData = async () => {
       await getData();
       await getListLocator();
-    }
+    };
     loadData();
   }, []);
 
@@ -180,31 +176,31 @@ function InventoryManager(props) {
     setListLocator(res);
   };
   const handleChangeLocator = (value, option) => {
-    setSelectedLocator(value)
+    setSelectedLocator(value);
     let resData = data.map((item, index) => {
-      let quantity = 0
+      let quantity = 0;
       if (!item.inventory.length) {
-        quantity = 0
+        quantity = 0;
       } else {
-        if (value !== 'all') {
-          item.inventory.forEach((i) => {
+        if (value !== "all") {
+          item?.inventory?.forEach((i) => {
             if (i.locator == value) {
-              i.imports.forEach((j) => {
-                quantity += j.quantity
-              })
+              i?.imports?.forEach((j) => {
+                quantity += j.quantity;
+              });
             }
-          })
+          });
         } else {
-          item.inventory.forEach((i) => {
-            i.imports.forEach((j) => {
-              quantity += j.quantity
-            })
-          })
+          item?.inventory?.forEach((i) => {
+            i?.imports?.forEach((j) => {
+              quantity += j.quantity;
+            });
+          });
         }
       }
       return {
         ...item,
-        quantity: quantity
+        quantity: quantity,
       };
     });
     setData(resData);
