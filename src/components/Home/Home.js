@@ -37,7 +37,6 @@ function Home(props) {
       setValueProduct(resProduct);
       setValueOrder(resOrder);
       setValueNumberOrder(resNumberOrder);
-      console.log('resOrder', resOrder);
       let orderNotProcess = resOrder.filter(o => o.status === 'Not processed')
       let orderNotShipping = resOrder.filter(o => o.status === 'Processing')
       let orderShipping = resOrder.filter(o => o.status === 'Shipped')
@@ -209,26 +208,46 @@ function Home(props) {
     <div>
       <Row gutter={16}>
         <Col span={4}>
-          <NumberCard number={numberOfOrderNew} icon={<BiListPlus style={{ color: "green" }}/>} title={"Đơn hàng mới"} />
+          <NumberCard
+            number={numberOfOrderNew}
+            icon={<BiListPlus style={{ color: "green" }} />}
+            title={"Đơn hàng mới"}
+          />
         </Col>
         <Col span={4}>
-          <NumberCard number={numberOfOrderNotProcess} icon={<FcProcess />} title={"Chưa xử lý"} />
+          <NumberCard
+            number={numberOfOrderNotProcess}
+            icon={<FcProcess />}
+            title={"Chưa xử lý"}
+          />
         </Col>
         <Col span={5}>
-          <NumberCard number={numberOfOrderNotShipping} icon={<BsCheckCircle style={{ color: "orange" }} />} title={"Chưa vận chuyển"} />
+          <NumberCard
+            number={numberOfOrderNotShipping}
+            icon={<BsCheckCircle style={{ color: "orange" }} />}
+            title={"Chưa vận chuyển"}
+          />
         </Col>
         <Col span={5}>
-          <NumberCard number={numberOfOrderShipping} icon={<FaShippingFast style={{ color: "green" }} />} title={"Đang vận chuyển"} />
+          <NumberCard
+            number={numberOfOrderShipping}
+            icon={<FaShippingFast style={{ color: "green" }} />}
+            title={"Đang vận chuyển"}
+          />
         </Col>
         <Col span={4}>
-          <NumberCard number={numberOfOrder} icon={<FaRegListAlt style={{ color: "blue" }} />} title={"Tổng số đơn"} />
+          <NumberCard
+            number={numberOfOrder}
+            icon={<FaRegListAlt style={{ color: "blue" }} />}
+            title={"Tổng số đơn"}
+          />
         </Col>
-        <Col span={4}>
+        {/* <Col span={4}>
           <NumberCard number={numberOfOrderNew} icon={<FiUserPlus style={{ color: "green" }}/>} title={"Số khách mới"} />
         </Col>
         <Col span={4}>
           <NumberCard number={numberOfOrderNotProcess} icon={<FiUsers style={{ color: "blue" }}/>} title={"Tổng số khách"} />
-        </Col>
+        </Col> */}
       </Row>
       {/* <Row gutter={16}>
         <Col span={4}>
@@ -315,11 +334,11 @@ function Home(props) {
         >
           <Line
             data={data}
-          // {...config}
-          // options={{
-          //   responsive: true,
-          //   maintainAspectRatio: false,
-          // }}
+            // {...config}
+            // options={{
+            //   responsive: true,
+            //   maintainAspectRatio: false,
+            // }}
           />
         </Col>
       </Row>
@@ -410,10 +429,10 @@ function Home(props) {
         >
           <Bar
             data={dataBar}
-          // options={{
-          //   responsive: true,
-          //   maintainAspectRatio: false,
-          // }}
+            // options={{
+            //   responsive: true,
+            //   maintainAspectRatio: false,
+            // }}
           />
         </Col>
       </Row>

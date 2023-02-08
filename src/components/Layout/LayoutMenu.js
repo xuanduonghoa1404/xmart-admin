@@ -20,6 +20,7 @@ import {
   MenuOutlined,
   DatabaseOutlined,
   ProfileOutlined,
+  AntDesignOutlined,
 } from "@ant-design/icons";
 import { IconMap } from "antd/lib/result";
 import { Link } from "react-router-dom";
@@ -107,6 +108,9 @@ function LayoutMenu(props) {
           </SubMenu>
           <Menu.Item key="13" icon={<PercentageOutlined />}>
             <Link to="/marketing">Khuyến mại</Link>
+          </Menu.Item>
+          <Menu.Item key="103" icon={<AntDesignOutlined />}>
+            <Link to="/design">Thiết kế</Link>
           </Menu.Item>
           <SubMenu
             key="sub1"

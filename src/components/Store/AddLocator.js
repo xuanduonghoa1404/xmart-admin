@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import PropTypes from "prop-types";
 import {
   Button,
@@ -11,21 +11,28 @@ import {
   Modal,
   Form,
   Column,
+  Row,
   Select,
   Switch,
-  Dropdown,
-  Menu
 } from "antd";
-import inventoryApi from "../../api/inventoryApi";
-import { FiEdit } from "react-icons/fi";
-import { RiDeleteBin6Line } from "react-icons/ri";
-import Highlighter from "react-highlight-words";
-import { SearchOutlined, DownOutlined, UserOutlined } from "@ant-design/icons";
-import TextArea from "antd/lib/input/TextArea";
 import locatorApi from "../../api/locatorApi";
+import { FiEdit } from "react-icons/fi";
+import { RiDeleteBin6Line, RiCheckboxCircleLine } from "react-icons/ri";
+import { GiCancel } from "react-icons/gi";
+import Highlighter from "react-highlight-words";
+import {
+  CheckCircleOutlined,
+  ExclamationCircleOutlined,
+  SearchOutlined,
+} from "@ant-design/icons";
+import TextArea from "antd/lib/input/TextArea";
+import { Map, Marker, TileLayer, Tooltip as TooltipMap } from "react-leaflet";
+import L from "leaflet";
+import * as ELG from "esri-leaflet-geocoder";
+import leafletKnn from "leaflet-knn";
 const { Option } = Select;
 
-function InventoryManager(props) {
+function LocatorManager(props) {
   const [pagination, setPagination] = useState({ pageSize: 5, current: 1 });
   const [loading, setLoading] = useState(false);
   const [data, setData] = useState([]);
@@ -34,9 +41,6 @@ function InventoryManager(props) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [action, setAction] = useState("Sửa thông tin");
   const [editId, setEditId] = useState("");
-  const [listLocator, setListLocator] = useState([]);
-  const [selectedLocator, setSelectedLocator] = useState('all');
-
 
   const [form] = Form.useForm();
 
@@ -44,6 +48,81 @@ function InventoryManager(props) {
     form.setFieldsValue(data[0]);
     setEditId(data[0]._id);
   };
+
+  const mapRef = useRef();
+  const apiKey =
+    "AAPKb10821df102a46a4b930958d7a6a06593sdla7i0cMWoosp7XXlYflDTAxsZMUq-oKvVOaom9B8CokPvJFd-sE88vOQ2B_rC";
+
+  const [addressMap, setAddressMap] = useState("");
+  const [city, setCity] = useState("");
+  const [country, setCountry] = useState("");
+  const [state, setState] = useState("");
+  const [zipcode, setZipcode] = useState("");
+  const [lat, setLat] = useState(0);
+  const [lng, setLng] = useState(0);
+
+  useEffect(() => {
+    const map = mapRef?.current?.leafletElement;
+
+    const searchControl = new ELG.geosearch({
+      useMapBounds: false,
+      position: "topleft",
+      placeholder: "Tìm địa chỉ",
+      providers: [
+        ELG.arcgisOnlineProvider({
+          apikey: apiKey,
+          nearby: {
+            lat: 21.00146,
+            lng: 105.84651,
+          },
+        }),
+      ],
+    }).addTo(map);
+
+    const results = new L.LayerGroup().addTo(map);
+    // results.addLayer(L.marker({ lat: 21.00146, lng: 105.84651 }));
+    searchControl.on("results", function (data) {
+      results.clearLayers();
+      for (let i = data.results.length - 1; i >= 0; i--) {
+        results.addLayer(L.marker(data.results[i].latlng));
+      }
+    });
+    map.on("click", function (e) {
+      ELG.reverseGeocode({
+        apikey: apiKey,
+      })
+        .latlng(e.latlng)
+
+        .run(function (error, result) {
+          if (error) {
+            return;
+          }
+
+          results.clearLayers();
+
+          let marker = L.marker(result.latlng).addTo(results);
+
+          const lngLatString = `${
+            Math.round(result.latlng.lng * 100000) / 100000
+          }, ${Math.round(result.latlng.lat * 100000) / 100000}`;
+
+          marker.bindPopup(
+            `<b>${lngLatString}</b><p>${result.address.Match_addr}</p>`
+          );
+          setCity(result.address.City);
+          setCountry(result.address.CntryName);
+          setAddressMap(
+            `${result.address.Address} ${result.address.Neighborhood}`
+          );
+
+          setState(result.address.District);
+          setZipcode(result.address.Postal);
+          setLat(Math.round(result.latlng.lat * 100000) / 100000);
+          setLng(Math.round(result.latlng.lng * 100000) / 100000);
+          marker.openPopup();
+        });
+    });
+  }, []);
 
   const layout = {
     labelCol: { span: 8 },
@@ -62,10 +141,12 @@ function InventoryManager(props) {
   };
 
   const onFinishModal = async (values) => {
+    console.log(values);
     if (action == "Sửa thông tin") {
-      await inventoryApi.editInventoryById(editId, values);
+      await locatorApi.editLocatorById(editId, values);
+    } else {
+      await locatorApi.createLocator({ ...values });
     }
-
     await getData();
     setIsModalVisible(false);
   };
@@ -166,93 +247,12 @@ function InventoryManager(props) {
   useEffect(() => {
     const loadData = async () => {
       await getData();
-      await getListLocator();
     };
     loadData();
   }, []);
 
-  const getListLocator = async () => {
-    let res = await locatorApi.getAllLocator();
-    setListLocator(res);
-  };
-  const handleChangeLocator = (value, option) => {
-    setSelectedLocator(value);
-    let resData = data.map((item, index) => {
-      let quantity = 0;
-      if (!item.inventory.length) {
-        quantity = 0;
-      } else {
-        if (value !== "all") {
-          item?.inventory?.forEach((i) => {
-            if (i.locator == value) {
-              i?.imports?.forEach((j) => {
-                quantity += j.quantity;
-              });
-            }
-          });
-        } else {
-          item?.inventory?.forEach((i) => {
-            i?.imports?.forEach((j) => {
-              quantity += j.quantity;
-            });
-          });
-        }
-      }
-      return {
-        ...item,
-        quantity: quantity,
-      };
-    });
-    setData(resData);
-  };
-
-  const handle = useCallback(async () => {
-    await getInventoryDateExpiration();
-  }
-  , [data]);
-
-  const getInventoryDateExpiration = async () => {
-    console.log("getInventoryDateExpiration");
-    let res = await inventoryApi.getInventoryDateExpiration();
-    let resData = res.map((item, index) => {
-      // let color;
-      // switch (item.status) {
-      //   case "admin":
-      //     color = "red";
-      //     break;
-      //   case "cashier":
-      //     color = "green";
-      //     break;
-      //   // case "customer": "blue"; break;
-      //   case "inventoryManager":
-      //     color = "blue";
-      //     break;
-      // }
-      let quantity = 0
-      if (!item.inventory.length) {
-        quantity = 0
-      } else {
-        item.inventory.forEach((i) => {
-          i.imports.forEach((j) => {
-            quantity += j.quantity
-          })
-        })
-      }
-      return {
-        ...item,
-        quantity: quantity,
-        // status: (
-        //   <Tag color={color} key={item.status}>
-        //     {item.status}
-        //   </Tag>
-        // ),
-      };
-    });
-    setData(resData);
-  };
-
   const getData = async () => {
-    let res = await inventoryApi.getAllInventory();
+    let res = await locatorApi.getAllLocator();
     let resData = res.map((item, index) => {
       let color;
       switch (item.status) {
@@ -267,19 +267,8 @@ function InventoryManager(props) {
           color = "blue";
           break;
       }
-      let quantity = 0
-      if (!item.inventory.length) {
-        quantity = 0
-      } else {
-        item?.inventory.forEach((i) => {
-          i?.imports?.forEach((j) => {
-            quantity += j.quantity;
-          });
-        });
-      }
       return {
         ...item,
-        quantity: quantity,
         status: (
           <Tag color={color} key={item.status}>
             {item.status}
@@ -287,88 +276,73 @@ function InventoryManager(props) {
         ),
       };
     });
-    setData(resData);
+    console.log(res);
+    setData(res);
   };
 
   const handleDelete = async (id) => {
-    console.log(id);
-    const res = await inventoryApi.deleteInventoryById(id);
-    console.log(res);
+    const res = await locatorApi.deleteLocatorById(id);
     await getData();
   };
-
+  const handleStatus = async (id, status) => {
+    const res = await locatorApi.setStatusById(id, status);
+    await getData();
+  };
   const columns = [
     {
       title: "Tên",
       dataIndex: "name",
-      sorter: (a, b) => a.name?.length - b.name?.length,
+      sorter: (a, b) => a.name.length - b.name.length,
       ...getColumnSearchProps("name"),
     },
-    // {
-    //   title: "Loại",
-    //   ndataIndex: "type.name",
-    //   sorter: (a, b) => a.typeName?.length - b.typeName?.length,
-    // },
-    // {
-    //   title: "Mô tả",
-    //   dataIndex: "description",
-    //   sorter: (a, b) => a.description?.length - b.description?.length,
-    // },
-    // {
-    //   title: "Số lượng nhập",
-    //   dataIndex: "amountInput",
-    //   sorter: (a, b) => a.amount - b.amount,
-    // },
     {
-      title: "Số lượng",
-      dataIndex: "quantity",
-      sorter: (a, b) => a.quantity - b.quantity,
+      title: "Mã chi nhánh",
+      dataIndex: "storeID",
+      sorter: (a, b) => a.storeID.length - b.storeID.length,
+      ...getColumnSearchProps("storeID"),
     },
     {
-      title: "Đơn vị",
-      dataIndex: "uom",
-      sorter: (a, b) => a.uom?.length - b.uom?.length,
+      title: "Mô tả",
+      dataIndex: "address",
+      sorter: (a, b) => a.address.length - b.address.length,
     },
-    // {
-    //   title: "Số lượng xuất",
-    //   dataIndex: "amountOutput",
-    //   sorter: (a, b) => a.description.length - b.description.length,
-    // },
-    // {
-    //   title: "Trạng thái",
-    //   dataIndex: "status",
-    //   filters: [
-    //     {
-    //       text: "Đang bán",
-    //       value: true,
-    //     },
-    //     {
-    //       text: "Không bán",
-    //       value: false,
-    //     },
-    //   ],
-    //   onFilter: (value, record) => record.status === value,
-    //   sorter: (a, b) => a.status?.length - b.status?.length,
-    //   render: (status) => {
-    //     let color;
-    //     let valueVN;
-    //     switch (status) {
-    //       case false:
-    //         color = "red";
-    //         valueVN = "Không bán";
-    //         break;
-    //       case true:
-    //         color = "green";
-    //         valueVN = "Đang bán";
-    //         break;
-    //     }
-    //     return (
-    //       <Tag color={color} key={status}>
-    //         {valueVN}
-    //       </Tag>
-    //     );
-    //   },
-    // },
+    {
+      title: "Trạng thái",
+      dataIndex: "status",
+      key: "status",
+      filters: [
+        {
+          text: "Hoạt động",
+          value: true,
+        },
+        {
+          text: "Không hoạt động",
+          value: false,
+        },
+      ],
+      onFilter: (value, record) => record.status === value,
+      sorter: (a, b) => a.status?.length - b.status?.length,
+      render: (status) => {
+        let color;
+        let valueVN;
+        switch (status) {
+          case false:
+            color = "red";
+            valueVN = "Không hoạt động";
+            break;
+          case true:
+            color = "green";
+            valueVN = "Hoạt động";
+            break;
+        }
+        return (
+          <Tag color={color} key={status}>
+            {valueVN}
+          </Tag>
+        );
+      },
+    },
+
     {
       title: "Hành động",
       key: "action",
@@ -382,7 +356,6 @@ function InventoryManager(props) {
           >
             <FiEdit color={"green"} size={"18px"} />
           </a>
-
           <Popconfirm
             title="Bạn có muốn xóa?"
             onConfirm={() => handleDelete(record._id)}
@@ -404,65 +377,48 @@ function InventoryManager(props) {
   return (
     <>
       <div>
-        {/* <Button
+        <Row map style={{ height: 300, with: 600 }}>
+          <Map
+            style={{ height: "100%", width: "100%" }}
+            zoom={15}
+            center={[21.00146, 105.84651]}
+            zoomControl={false}
+            ref={mapRef}
+          >
+            <TileLayer
+              attribution=""
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+            {data?.map((locator, index) => {
+              return (
+                <Marker
+                  position={[locator.lat, locator.lng]}
+                  icon={L.icon({
+                    iconUrl:
+                      "https://res.cloudinary.com/hoaduonghx/image/upload/v1669541451/image/wsf2f8vtuxfdcuzpmxpg.png",
+                    iconSize: [41, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34],
+                    shadowSize: [41, 41],
+                  })}
+                >
+                  <TooltipMap offset={[12.5, -22.5]}>
+                    <b>{locator.address}</b>
+                  </TooltipMap>
+                </Marker>
+              );
+            })}
+          </Map>
+        </Row>
+        <Button
           type="primary"
           onClick={() => {
-            showModal("Thêm loại sản phẩm");
+            showModal("Thêm chi nhánh");
           }}
-          style={{ marginBottom: "16px" }}
+          style={{ marginBottom: "16px", marginTop: "16px" }}
         >
-          Thêm loại sản phẩm
-          </Button> */}
-        {/* <Dropdown overlay={<Menu
-          onClick={handleMenuClick}
-          items={[
-            {
-              label: '1st menu item',
-              key: '1',
-              icon: <UserOutlined />,
-            },
-            {
-              label: '2nd menu item',
-              key: '2',
-              icon: <UserOutlined />,
-            },
-            {
-              label: '3rd menu item',
-              key: '3',
-              icon: <UserOutlined />,
-            },
-          ]}
-        />}>
-          <Button>
-            <Space>
-              Button
-              <DownOutlined />
-            </Space>
-          </Button>
-        </Dropdown> */}
-        <Select
-          style={{
-            minWidth: 120,
-            width: 'fitContent',
-          }}
-          placeholder="Chọn chi nhánh"
-          // defaultValue={selectedLocator}
-          onChange={handleChangeLocator}
-        >
-          <Option value={'all'}>All</Option>
-          {listLocator.map((item, index) => {
-            return <Option value={item._id}>{item.name}</Option>;
-          })}
-        </Select>
-        <Button
-          type="secondary"
-          onClick={() => {
-            handle()
-          }}
-          style={{ marginBottom: "16px" }}
-        >
-          Sản phẩm sắp hết hạn
-          </Button>
+          Thêm chi nhánh
+        </Button>
         <Modal
           footer={null}
           title={action}
@@ -480,15 +436,17 @@ function InventoryManager(props) {
             <Form.Item name={"name"} label="Tên" rules={[{ required: true }]}>
               <Input />
             </Form.Item>
-            <Form.Item name={"name_type"} label="Loại" rules={[{ required: true }]}>
+            <Form.Item
+              name={"storeID"}
+              label="Mã chi nhánh"
+              rules={[{ required: true }]}
+            >
               <Input />
             </Form.Item>
-            <Form.Item name={"unit"} label="Đơn vị" rules={[{ required: true }]}>
-              <Input />
-            </Form.Item>
-            <Form.Item name={"description"} label="Mô tả">
+            <Form.Item name={"address"} label="Mô tả">
               <TextArea rows="5" />
             </Form.Item>
+
             <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
               <Button type="primary" htmlType="submit">
                 Lưu
@@ -508,6 +466,6 @@ function InventoryManager(props) {
   );
 }
 
-InventoryManager.propTypes = {};
+LocatorManager.propTypes = {};
 
-export default InventoryManager;
+export default LocatorManager;

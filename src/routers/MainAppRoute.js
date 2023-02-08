@@ -17,10 +17,12 @@ const OrderAddManager = lazy(() => import("./OrderAddRoute"));
 const ProductManager = lazy(() => import("./ProductRoute"));
 const TypeProductManager = lazy(() => import("./TypeProductRoute"));
 const MarketingManager = lazy(() => import("./MarketingRoute"));
+const DesignManager = lazy(() => import("./DesignRoute"));
 const InventoryManager = lazy(() => import("./InventoryRoute"));
 const ImportInventory = lazy(() => import("./ImportInventoryRoute"));
 const ExportInventory = lazy(() => import("./ExportInventoryRoute"));
-const TableManager = lazy(() => import("./TableRoute"));
+const LocatorManager = lazy(() => import("./LocatorRoute"));
+const EditLocator = lazy(() => import("./EditLocatorRoute"));
 const ShopManager = lazy(() => import("./ShopRoute"));
 const MemberManager = lazy(() => import("./MemberRoute"));
 const AccountManager = lazy(() => import("./AccountRoute"));
@@ -41,17 +43,28 @@ function MainAppRoute(props) {
             path="/order/:id"
             render={(props) => <OrderDetailManager {...props} />}
           />
+          <PrivateRoute
+            component={EditLocator}
+            exact
+            path="/store/locator/:id"
+            render={(props) => <EditLocator {...props} />}
+          />
           <PrivateRoute component={ProductManager} exact path="/product" />
           <PrivateRoute
             component={TypeProductManager}
             exact
             path="/typeproduct"
           />
+          <PrivateRoute component={DesignManager} exact path="/design" />
           <PrivateRoute component={MarketingManager} exact path="/marketing" />
           <PrivateRoute component={InventoryManager} exact path="/inventory" />
           <PrivateRoute component={ImportInventory} path="/inventory/import" />
           <PrivateRoute component={ExportInventory} path="/inventory/export" />
-          <PrivateRoute component={TableManager} exact path="/store/locator" />
+          <PrivateRoute
+            component={LocatorManager}
+            exact
+            path="/store/locator"
+          />
           <PrivateRoute component={ShopManager} exact path="/store/shop" />
           <PrivateRoute component={MemberManager} exact path="/member" />
           <PrivateRoute component={AccountManager} exact path="/account" />
