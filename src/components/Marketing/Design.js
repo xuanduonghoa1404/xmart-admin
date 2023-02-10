@@ -4,6 +4,7 @@ import { fabric } from "fabric";
 import { UploadOutlined } from "@ant-design/icons";
 import {
   Button,
+  Image,
   Input,
   message,
   Modal,
@@ -49,6 +50,7 @@ import ColorCircle from "./ColorCircle";
 import FontFaceObserver from "fontfaceobserver";
 import typeProductApi from "../../api/typeProductApi";
 import productApi from "../../api/productApi";
+import shopApi from "../../api/shopApi";
 const { Option } = Select;
 function Design() {
   const cloudName = "hoaduonghx"; // replace with your own cloud name
@@ -95,6 +97,7 @@ function Design() {
   const [urlImage, setUrlImage] = useState("");
   const [typeList, setTypeList] = useState([]);
   const [productList, setProductList] = useState([]);
+  const [imageList, setImageList] = useState([]);
 
   let saveStack = false;
   let editText = false;
@@ -119,6 +122,7 @@ function Design() {
     const loadData = async () => {
       await getDataType();
       await getDataProduct();
+      await getDataListImage();
     };
     loadData();
   }, []);
@@ -130,6 +134,10 @@ function Design() {
   const getDataProduct = async () => {
     let res = await productApi.getAllProduct();
     setProductList(res);
+  };
+  const getDataListImage = async () => {
+    let res = await shopApi.getShop();
+    setImageList(res.image);
   };
 
   const fonts = [
@@ -249,7 +257,6 @@ function Design() {
     canvas.renderAll();
 
     reader.addEventListener("load", () => {
-      console.log("reader.result", reader.result);
       if (reader.result.includes("svg+xml")) {
         fabric.loadSVGFromURL(reader.result, function (objects, options) {
           var svg = fabric.util.groupSVGElements(objects, options);
@@ -443,7 +450,6 @@ function Design() {
     setFontFamily(value);
     if (canvas.getActiveObject()) {
       if (value !== "Times New Roman") {
-        console.log("loadAndUse", value);
         loadAndUse(value);
       } else {
         console.log("canvas.getActiveObject", value);
@@ -1010,7 +1016,7 @@ function Design() {
           />
           <p>
             <label>Text</label>
-            Add new text layer or use one of our text styling.
+            Thêm văn bản hoặc sử dụng mẫu có sẵn
             {/*<small>Keybord shortcut (T)</small>*/}
           </p>
         </div>
@@ -1128,11 +1134,11 @@ function Design() {
         {currentMode == mode.text && (
           <div className="text-edit-area">
             <Button onClick={() => handleAddText(fontFamily)}>
-              Add new text
+              Thêm văn bản
             </Button>
             {isSelectedText ? (
               <>
-                <div className="editor-title">Font Family</div>
+                {/* <div className="editor-title">Font Family</div>
                 <Select
                   options={fonts}
                   style={{
@@ -1141,8 +1147,8 @@ function Design() {
                   }}
                   onChange={handleFontFamilyChange}
                   value={fontFamily}
-                />
-                <div className="editor-title">Text style</div>
+                /> */}
+                <div className="editor-title">Kiểu chữ</div>
                 <div className="editor-text-style">
                   <span
                     onClick={handleToggleTextUnderline}
@@ -1157,7 +1163,7 @@ function Design() {
                     <BsTypeBold style={{ fontSize: "18px" }} />
                   </span>
                 </div>
-                <div className="editor-title">Text color</div>
+                <div className="editor-title">Màu chữ</div>
                 <div className="text-color">
                   <Colorpicker
                     popup
@@ -1194,7 +1200,7 @@ function Design() {
                   </span>
                 </div>
                 <div className="toggle-menu-item">
-                  <div className="editor-title">Background</div>
+                  <div className="editor-title">Nền</div>
                   <Switch
                     checked={showBackgroundFied}
                     onChange={handleToggleBackground}
@@ -1206,7 +1212,7 @@ function Design() {
                 </div>
                 {showBackgroundFied && (
                   <div>
-                    <div className="editor-title">Color</div>
+                    <div className="editor-title">Màu</div>
                     <div className="text-color">
                       <Colorpicker
                         popup
@@ -1255,7 +1261,7 @@ function Design() {
                   </div>
                 )}
                 <div className="toggle-menu-item">
-                  <div className="editor-title">Stroke</div>
+                  <div className="editor-title">Nét</div>
                   <Switch
                     checked={showStrokeField}
                     onChange={handleToggleStroke}
@@ -1268,7 +1274,7 @@ function Design() {
 
                 {showStrokeField && (
                   <div>
-                    <div className="editor-title">Color</div>
+                    <div className="editor-title">Màu</div>
                     <div className="text-color">
                       <Colorpicker
                         popup
@@ -1304,7 +1310,7 @@ function Design() {
                         <ColorCircle color={"#3681ce"} />
                       </span>
                     </div>
-                    <div className="editor-title">Stroke Width</div>
+                    <div className="editor-title">Độ rộng nét</div>
                     <div>
                       <Slider
                         value={strokeWidth}
@@ -1323,7 +1329,7 @@ function Design() {
         )}
         {currentMode == mode.pen && (
           <div className="text-edit-area">
-            <div className="editor-title">Color</div>
+            <div className="editor-title">Màu</div>
             <div className="text-color">
               <Colorpicker
                 popup
@@ -1349,7 +1355,7 @@ function Design() {
                 <ColorCircle color={"#3681ce"} />
               </span>
             </div>
-            <div className="editor-title">Width</div>
+            <div className="editor-title">Độ rộng</div>
             {/* <RangeSlider
                     value={brushWidth}
                     onChange={handleChangeBrushWidth}
@@ -1493,6 +1499,21 @@ function Design() {
                       </Select>
                     </div>
                   )}
+                  <div>
+                    <p>Chọn nhãn</p>
+                    <div className="list-image">
+                      {imageList?.map((item) => {
+                        return (
+                          <Image
+                            width={100}
+                            src={item}
+                            preview={false}
+                            onClick={() => handleImageUrlUpload(item)}
+                          />
+                        );
+                      })}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>

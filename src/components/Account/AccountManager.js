@@ -60,9 +60,10 @@ class AccountManager extends React.Component{
     let phone = dataUser ? dataUser.phone : "";
     console.log(dataUser)
     return (
-      <div class="wrapper bg-white mt-sm-5">
+      <div class="wrapper bg-white mt-sm-5" style={{ padding: "20px" }}>
         <h4 class="pb-4 border-bottom">Quản lý tài khoản</h4>
-        {dataUser && <Form
+        {dataUser && (
+          <Form
             name="normal_login"
             className="login-form"
             onFinish={this.onFinish}
@@ -72,59 +73,64 @@ class AccountManager extends React.Component{
               rules={[
                 {
                   required: true,
-                  message: 'Xin hãy nhập tên của bạn!',
+                  message: "Xin hãy nhập tên của bạn!",
                 },
               ]}
               initialValue={name}
             >
-              <Input placeholder="Tên"/>
+              <Input placeholder="Tên" />
             </Form.Item>
             <Form.Item
               name="address"
               rules={[
                 {
                   required: true,
-                  message: 'Xin hãy nhập địa chỉ của bạn!',
+                  message: "Xin hãy nhập địa chỉ của bạn!",
                 },
               ]}
               initialValue={address}
             >
-              <Input placeholder="Địa chỉ"/>
+              <Input placeholder="Địa chỉ" />
             </Form.Item>
             <Form.Item
               name="phone"
               rules={[
                 {
                   required: true,
-                  message: 'Xin hãy nhập số điện thoại của bạn!',
+                  message: "Xin hãy nhập số điện thoại của bạn!",
                 },
               ]}
               initialValue={phone}
             >
-              <Input placeholder="Số điện thoại"/>
+              <Input placeholder="Số điện thoại" />
             </Form.Item>
             <Form.Item
               name="email"
               rules={[
                 {
-                  type: 'email',
-                  message: 'Bạn nhập không đúng định dạng email!',
+                  type: "email",
+                  message: "Bạn nhập không đúng định dạng email!",
                 },
                 {
                   required: true,
-                  message: 'Xin hãy nhập email của bạn!',
+                  message: "Xin hãy nhập email của bạn!",
                 },
               ]}
               initialValue={email}
             >
-              <Input placeholder="Địa chỉ email" disabled={true}/>
+              <Input placeholder="Địa chỉ email" disabled={true} />
             </Form.Item>
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="login-form-button">
+              <Button
+                type="primary"
+                htmlType="submit"
+                className="login-form-button"
+              >
                 Cập nhật thông tin
               </Button>
             </Form.Item>
-         </Form>}
+          </Form>
+        )}
       </div>
     );
   }

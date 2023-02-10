@@ -76,73 +76,73 @@ function Shop(props) {
     }, []);
 
     return (
-        <div class="wrapper bg-white mt-sm-5">
-            <h4 class="pb-4 border-bottom">Cấu hình cửa hàng</h4>
-            <br></br>
-            <Form
-                labelCol={{
-                    flex: '200px',
-                }}
-                labelAlign="left"
-                labelWrap
-                // wrapperCol={{
-                //     flex: 1,
-                // }}
-                // colon={false}
-                name="normal_login"
-                onFill={onFill}
-                form={form}
-                onFinish={onFinish}
-                validateMessages={validateMessages}
-            >
-                <Form.Item
-                    name="fromEmailAdress"
-                    rules={[
-                        {
-                            type: 'email',
-                            message: 'Bạn nhập không đúng định dạng email!',
-                        },
-                        {
-                            required: true,
-                            message: 'Xin hãy nhập email của bạn!',
-                        },
-                    ]}
-                    label="Email"
-                >
-                    <Input placeholder="Email" />
-                </Form.Item>
-                <Form.Item
-                    name="fromEmailPassword"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Xin hãy nhập mật khẩu của bạn!',
-                        },
-                    ]}
-                    label="Mật khẩu"
-                >
-                    <Input.Password placeholder="Mật khẩu" />
-                </Form.Item>
-                <Form.Item
-                    name="schedule"
-                    rules={[
-                        {
-                            required: true,
-                            message: 'Xin hãy nhập số điện thoại của bạn!',
-                        },
-                    ]}
-                    label="Lên kế hoạch"
-                >
-                    <Input placeholder="Số điện thoại" />
-                </Form.Item>
-                <Form.Item
-                    name="timeWarning"
-                    label="Thời gian thông báo"
-                >
-                    <TimePicker defaultValue={moment('07:15', format)} format={format} minuteStep={15} />
-
-                </Form.Item>
-                {/* <Form.Item
+      <div class="wrapper bg-white mt-sm-5" style={{ padding: "20px" }}>
+        <h4 class="pb-4 border-bottom">Cấu hình cửa hàng</h4>
+        <br></br>
+        <Form
+          labelCol={{
+            flex: "200px",
+          }}
+          labelAlign="left"
+          labelWrap
+          // wrapperCol={{
+          //     flex: 1,
+          // }}
+          // colon={false}
+          name="normal_login"
+          onFill={onFill}
+          form={form}
+          onFinish={onFinish}
+          validateMessages={validateMessages}
+        >
+          <Form.Item
+            name="fromEmailAdress"
+            rules={[
+              {
+                type: "email",
+                message: "Bạn nhập không đúng định dạng email!",
+              },
+              {
+                required: true,
+                message: "Xin hãy nhập email của bạn!",
+              },
+            ]}
+            label="Email"
+          >
+            <Input placeholder="Email" />
+          </Form.Item>
+          <Form.Item
+            name="fromEmailPassword"
+            rules={[
+              {
+                required: true,
+                message: "Xin hãy nhập mật khẩu của bạn!",
+              },
+            ]}
+            label="Mật khẩu"
+          >
+            <Input.Password placeholder="Mật khẩu" />
+          </Form.Item>
+          <Form.Item
+            name="schedule"
+            rules={[
+              {
+                required: true,
+                message: "Xin hãy nhập số điện thoại của bạn!",
+              },
+            ]}
+            label="Lên kế hoạch"
+          >
+            <Input placeholder="Số điện thoại" />
+          </Form.Item>
+          <Form.Item name="timeWarning" label="Thời gian thông báo">
+            <TimePicker
+              defaultValue={moment("07:15", format)}
+              format={format}
+              minuteStep={15}
+            />
+          </Form.Item>
+          {/* <Form.Item
                     name="warningType"
                     label="Thông báo khi"
                 >
@@ -168,42 +168,45 @@ function Shop(props) {
                     }
                     ) : <></>}
                 </Form.Item> */}
-                <Form.List name="warningType" label="Thông báo khi">
-                    {(fields, { add, remove }) => (
-                        <>
-                            {fields.map((field) => (
-                                <Space key={field.key} align="baseline">
-                                    <Form.Item
-                                        {...field}
-                                        name={[field.name, "name"]}
-
-                                    >
-                                        <Input addonBefore="Loại" readOnly />
-                                    </Form.Item>
-                                    <Form.Item
-                                        {...field}
-                                        name={[field.name, "quantity"]}
-                                    >
-                                        <Input name="" addonBefore="Số lượng còn lại" addonAfter="(đơn vị)" type="number" />
-                                    </Form.Item>
-                                    <Form.Item
-                                        {...field}
-                                        name={[field.name, "numberOfDate"]}
-                                    >
-                                        <Input addonBefore="Số ngày trước khi hết hạn" addonAfter="(ngày)" type="number" />
-                                    </Form.Item>
-                                </Space>
-                            ))}
-                        </>
-                    )}
-                </Form.List>
-                <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
-                    <Button type="primary" htmlType="submit" className="login-form-button">
-                        Lưu
-                    </Button>
-                </Form.Item>
-            </Form>
-        </div>
+          <Form.List name="warningType" label="Thông báo khi">
+            {(fields, { add, remove }) => (
+              <>
+                {fields.map((field) => (
+                  <Space key={field.key} align="baseline">
+                    <Form.Item {...field} name={[field.name, "name"]}>
+                      <Input addonBefore="Loại" readOnly />
+                    </Form.Item>
+                    <Form.Item {...field} name={[field.name, "quantity"]}>
+                      <Input
+                        name=""
+                        addonBefore="Số lượng còn lại"
+                        addonAfter="(đơn vị)"
+                        type="number"
+                      />
+                    </Form.Item>
+                    <Form.Item {...field} name={[field.name, "numberOfDate"]}>
+                      <Input
+                        addonBefore="Số ngày trước khi hết hạn"
+                        addonAfter="(ngày)"
+                        type="number"
+                      />
+                    </Form.Item>
+                  </Space>
+                ))}
+              </>
+            )}
+          </Form.List>
+          <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
+            <Button
+              type="primary"
+              htmlType="submit"
+              className="login-form-button"
+            >
+              Lưu
+            </Button>
+          </Form.Item>
+        </Form>
+      </div>
     );
 }
 

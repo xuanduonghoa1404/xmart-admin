@@ -31,22 +31,26 @@ function Home(props) {
 
   useEffect(() => {
     const loadData = async () => {
+      let begin = null;
+      let end = null;
       let resProduct = await homeApi.getStatisticProduct();
       let resOrder = await homeApi.getStatisticOrder();
       let resNumberOrder = await homeApi.getStatisticNumberOrder();
       setValueProduct(resProduct);
       setValueOrder(resOrder);
       setValueNumberOrder(resNumberOrder);
-      let orderNotProcess = resOrder.filter(o => o.status === 'Not processed')
-      let orderNotShipping = resOrder.filter(o => o.status === 'Processing')
-      let orderShipping = resOrder.filter(o => o.status === 'Shipped')
-      let orderNew = resOrder
+      let orderNotProcess = resOrder.filter(
+        (o) => o.status === "Not processed"
+      );
+      let orderNotShipping = resOrder.filter((o) => o.status === "Processing");
+      let orderShipping = resOrder.filter((o) => o.status === "Shipped");
+      let orderNew = resOrder;
       setNumberOfOrderNotProcess(orderNotProcess.length);
       setNumberOfOrderNotShipping(orderNotShipping.length);
       setNumberOfOrderShipping(orderShipping.length);
       setNumberOfOrderNew(orderNew.length);
       setNumberOfOrder(resOrder.length);
-    }
+    };
     loadData();
   }, []);
 
@@ -54,7 +58,7 @@ function Home(props) {
     console.log(res);
   };
 
-  async function onChange(value, dateString) {
+  async function statisticOrder(value, dateString) {
     console.log("Selected Time: ", value);
     console.log("Formatted Selected Time: ", dateString);
     let res = await homeApi.getStatistic(
@@ -63,6 +67,19 @@ function Home(props) {
     );
     console.log(res);
     setValue(res);
+  }
+
+  async function statisticTotalOrder(value, dateString) {
+    console.log("Selected Time: ", value);
+    console.log("Formatted Selected Time: ", dateString);
+    if (value) {
+      let res = await homeApi.getStatisticNumberOrder(
+        value[0].valueOf(),
+        value[1].valueOf()
+      );
+      console.log(res);
+      setValueNumberOrder(res);
+    }
   }
 
   function onOk(value) {
@@ -97,8 +114,8 @@ function Home(props) {
   };
 
   const data = {
-    labels: value.map((item, index) =>
-      moment(item.time).format("DD-MM-YYYY HH:mm:ss")
+    labels: valueNumberOrder.map((item, index) =>
+      moment(item.date).format("DD-MM-YYYY")
     ),
     datasets: [
       {
@@ -120,7 +137,7 @@ function Home(props) {
         pointHoverBorderWidth: 2,
         pointRadius: 1,
         pointHitRadius: 10,
-        data: value.map((item) => item.totalPrice),
+        data: valueNumberOrder.map((item) => item.sub),
       },
     ],
   };
@@ -128,7 +145,7 @@ function Home(props) {
   const options = {
     title: {
       display: true,
-      text: "Chart Title"
+      text: "Chart Title",
     },
     scales: {
       yAxes: [
@@ -136,11 +153,11 @@ function Home(props) {
           ticks: {
             suggestedMin: 0,
             // suggestedMax: 500,
-            stepSize: 10
-          }
-        }
-      ]
-    }
+            stepSize: 10,
+          },
+        },
+      ],
+    },
   };
 
   const dataNumberOfOrder = {
@@ -302,7 +319,7 @@ function Home(props) {
             <RangePicker
               showTime={{ format: "HH:mm:ss" }}
               format="DD-MM-YYYY HH:mm:ss"
-              onChange={onChange}
+              onChange={statisticTotalOrder}
               onOk={onOk}
               ranges={{
                 "Hôm nay": [moment().startOf("day"), moment().endOf("day")],
@@ -365,7 +382,7 @@ function Home(props) {
             <RangePicker
               showTime={{ format: "HH:mm:ss" }}
               format="DD-MM-YYYY HH:mm:ss"
-              onChange={onChange}
+              onChange={statisticTotalOrder}
               onOk={onOk}
               ranges={{
                 "Hôm nay": [moment().startOf("day"), moment().endOf("day")],
