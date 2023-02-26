@@ -112,7 +112,9 @@ function EditOrder(props) {
         convertLngLatToObjectJSON(locator?.lng || 0, locator?.lat || 0)
       );
     });
+    console.log("listLocatorsFeature", listLocatorsFeature);
     let gj = L.geoJson(listLocatorsFeature);
+    console.log("gj", gj);
     let nearest = leafletKnn(gj).nearest(
       L.latLng(lnglat.lat, lnglat.lng),
       1

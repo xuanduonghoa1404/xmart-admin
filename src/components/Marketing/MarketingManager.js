@@ -96,6 +96,12 @@ import dayjs from "dayjs";
       setStatus(data[0].status);
       // setDateFrom(dayjs(new Date(data[0].dateFrom)).format("DD/MM/YYYY HH:mm:ss"));
       setDateFrom(data[0].dateFrom);
+      form.setFieldsValue({
+        dateFrom: moment(data[0].dateFrom),
+      });
+      form.setFieldsValue({
+        dateTo: moment(data[0].dateTo),
+      });
       setDateTo(data[0].dateTo);
     };
     const layout = {
@@ -534,7 +540,12 @@ import dayjs from "dayjs";
                     <Select defaultValue={data.apply}>
                       <Option value="ALL">Không</Option>
                       <Option value="DATE">Dựa theo ngày sắp hết hạn</Option>
-                      <Option value="QTY">Dựa theo số lượng còn lại</Option>
+                      <Option value="QTY_GREATER">
+                        Số lượng hàng tồn lớn hơn
+                      </Option>
+                      <Option value="QTY_LESS">
+                        Số lượng hàng tồn nhỏ hơn
+                      </Option>
                     </Select>
                   </Form.Item>
                 </Col>
@@ -572,15 +583,15 @@ import dayjs from "dayjs";
                         <Form.Item
                           name={"dateFrom"}
                           label="Từ"
-                          // getValueFromEvent={(onChange) =>
-                          //   moment(onChange).format("DD/MM/YYYY HH:mm:ss")
-                          // }
+                          getValueFromEvent={(onChange) =>
+                            moment(onChange).format("DD/MM/YYYY HH:mm:ss")
+                          }
                           getValueProps={(i) => moment(i)}
                         >
                           <DatePicker
                             format={"DD/MM/YYYY HH:mm:ss"}
                             showTime
-                            defaultValue={moment(dateFrom)}
+                            initialValues={moment(form.dateFrom)}
                           />
                         </Form.Item>
                       </Col>
@@ -596,7 +607,7 @@ import dayjs from "dayjs";
                           <DatePicker
                             format={"DD/MM/YYYY HH:mm:ss"}
                             showTime
-                            defaultValue={moment(dateTo)}
+                            initialValues={moment(form.dateTo)}
                           />
                         </Form.Item>
                       </Col>
@@ -607,8 +618,13 @@ import dayjs from "dayjs";
                       <InputNumber />
                     </Form.Item>
                   )}
-                  {condition === "QTY" && (
-                    <Form.Item name={"condition_value"} label="Số lượng">
+                  {condition === "QTY_GREATER" && (
+                    <Form.Item name={"condition_value"} label="Lớn hơn">
+                      <InputNumber />
+                    </Form.Item>
+                  )}
+                  {condition === "QTY_LESS" && (
+                    <Form.Item name={"condition_value"} label="Nhỏ hơn">
                       <InputNumber />
                     </Form.Item>
                   )}
