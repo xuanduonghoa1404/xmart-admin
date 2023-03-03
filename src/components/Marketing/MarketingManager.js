@@ -96,14 +96,19 @@ import dayjs from "dayjs";
       setStatus(data[0].status);
       // setDateFrom(dayjs(new Date(data[0].dateFrom)).format("DD/MM/YYYY HH:mm:ss"));
       setDateFrom(data[0].dateFrom);
-      form.setFieldsValue({
-        dateFrom: moment(data[0].dateFrom),
-      });
-      form.setFieldsValue({
-        dateTo: moment(data[0].dateTo),
-      });
+      // form.setFieldsValue({
+      //   dateFrom: moment(data[0].dateFrom),
+      //   dateTo: data[0].dateTo,
+      // });
+
       setDateTo(data[0].dateTo);
     };
+    console.log(
+      "data[0].getFieldValue",
+      form.getFieldValue("dateFrom"),
+      form.getFieldValue("dateTo")
+    );
+
     const layout = {
       labelCol: { span: 6 },
       wrapperCol: { span: 16 },
@@ -583,15 +588,15 @@ import dayjs from "dayjs";
                         <Form.Item
                           name={"dateFrom"}
                           label="Từ"
-                          getValueFromEvent={(onChange) =>
-                            moment(onChange).format("DD/MM/YYYY HH:mm:ss")
-                          }
+                          // getValueFromEvent={(onChange) =>
+                          //   moment(onChange).format("DD/MM/YYYY HH:mm:ss")
+                          // }
                           getValueProps={(i) => moment(i)}
                         >
                           <DatePicker
                             format={"DD/MM/YYYY HH:mm:ss"}
                             showTime
-                            initialValues={moment(form.dateFrom)}
+                            defaultValue={moment(dateFrom)}
                           />
                         </Form.Item>
                       </Col>
@@ -599,15 +604,15 @@ import dayjs from "dayjs";
                         <Form.Item
                           name={"dateTo"}
                           label="đến"
-                          getValueFromEvent={(onChange) =>
-                            moment(onChange).format("DD/MM/YYYY HH:mm:ss")
-                          }
+                          // getValueFromEvent={(onChange) =>
+                          //   moment(onChange).format("DD/MM/YYYY HH:mm:ss")
+                          // }
                           getValueProps={(i) => moment(i)}
                         >
                           <DatePicker
                             format={"DD/MM/YYYY HH:mm:ss"}
                             showTime
-                            initialValues={moment(form.dateTo)}
+                            defaultValue={moment(dateTo)}
                           />
                         </Form.Item>
                       </Col>

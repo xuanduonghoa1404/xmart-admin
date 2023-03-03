@@ -105,20 +105,23 @@ function LayoutMenu(props) {
             disabled={role == "cashier" ? true : false}
           >
             <Menu.Item key="4" icon={<BarsOutlined />}>
-              <Link to="/inventory">Hàng tồn kho</Link>
+              <Link to="/inventory">Hàng trong kho</Link>
             </Menu.Item>
             <Menu.Item key="5" icon={<ImportOutlined />}>
               <Link to="/inventory/import">Nhập kho</Link>
             </Menu.Item>
           </SubMenu>
-          <SubMenu key="sub2" icon={<ShopOutlined />} title="Cửa hàng">
+          <Menu.Item key="37" icon={<ShopOutlined />}>
+            <Link to="/store/locator">Cửa hàng</Link>
+          </Menu.Item>
+          {/* <SubMenu key="sub2" icon={<ShopOutlined />} title="Cửa hàng">
             <Menu.Item key="7" icon={<TableOutlined />}>
               <Link to="/store/locator">Chi nhánh</Link>
             </Menu.Item>
             <Menu.Item key="102" icon={<ExperimentOutlined />}>
               <Link to="/store/shop">Cấu hình</Link>
             </Menu.Item>
-          </SubMenu>
+          </SubMenu> */}
           <Menu.Item
             key="8"
             icon={<TeamOutlined />}

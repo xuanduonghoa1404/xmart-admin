@@ -332,13 +332,13 @@ function EditOrder(props) {
               </div>
             );
           })}
-          {orderDetail.status === "Not processed" && (
+          {/* {orderDetail.status === "Not processed" && (
             <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
               <Button htmlType="button" onClick={() => addMenu()}>
                 Thêm sản phẩm
               </Button>
             </Form.Item>
-          )}
+          )} */}
           <Form.Item wrapperCol={{ ...layout.wrapperCol, offset: 8 }}>
             <Button type="primary" htmlType="submit">
               Lưu

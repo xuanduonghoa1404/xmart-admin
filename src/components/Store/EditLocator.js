@@ -52,7 +52,7 @@ function EditLocator(props) {
   const locatorId = props.match.params.id.toString();
   const mapRef = useRef();
   const apiKey =
-    "AAPKb10821df102a46a4b930958d7a6a06593sdla7i0cMWoosp7XXlYflDTAxsZMUq-oKvVOaom9B8CokPvJFd-sE88vOQ2B_rC";
+    "AAPK661c00092e8147b19f0b8bf899d4f0e6W_YfjO_fYZBp7nkrzKroPOYBvs51S34bi_5lNfzk6083PK2__8j8O3awEieuNM47";
 
   const [addressMap, setAddressMap] = useState("");
   const [city, setCity] = useState("");
