@@ -35,7 +35,10 @@ function Home(props) {
       let end = null;
       let resProduct = await homeApi.getStatisticProduct();
       let resOrder = await homeApi.getStatisticOrder();
-      let resNumberOrder = await homeApi.getStatisticNumberOrder();
+      let resNumberOrder = await homeApi.getStatisticNumberOrder(
+        new Date("2023-01-01T00:00:00.731Z").getTime(),
+        new Date().getTime()
+      );
       setValueProduct(resProduct);
       setValueOrder(resOrder);
       setValueNumberOrder(resNumberOrder);
@@ -90,7 +93,7 @@ function Home(props) {
     labels: valueProduct.map((item, index) => item.name),
     datasets: [
       {
-        label: "Tổng số sản phẩm bán từng đơn hàng",
+        label: "Số sản phẩm bán ra",
         fill: false,
         // lineTension: 0.1,
         backgroundColor: "green",
@@ -108,7 +111,7 @@ function Home(props) {
         pointHoverBorderWidth: 2,
         pointRadius: 1,
         pointHitRadius: 10,
-        data: valueProduct.map((item) => item.total),
+        data: valueProduct.map((item) => item.quantity),
       },
     ],
   };
@@ -296,7 +299,7 @@ function Home(props) {
         </Col> */}
       </Row>
       <br />
-      <Row>
+      {/* <Row>
         <Col span={12}>
           <div
             style={{
@@ -351,14 +354,9 @@ function Home(props) {
         >
           <Line
             data={data}
-            // {...config}
-            // options={{
-            //   responsive: true,
-            //   maintainAspectRatio: false,
-            // }}
           />
         </Col>
-      </Row>
+      </Row> */}
       <Row>
         <Col span={12}>
           <div
@@ -412,10 +410,7 @@ function Home(props) {
             justifyContent: "center",
           }}
         >
-          <Line
-            // data={dataNumberOfOrder}
-            {...config}
-          />
+          <Line data={data} {...config} />
         </Col>
       </Row>
       <Row>
@@ -431,7 +426,7 @@ function Home(props) {
               color: "white",
             }}
           >
-            Thống kê tổng số sản phẩm của từng đơn hàng
+            Thống kê số lượng từng sản phẩm
           </div>
         </Col>
       </Row>
