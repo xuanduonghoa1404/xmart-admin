@@ -454,7 +454,7 @@ function InventoryManager(props) {
             return <Option value={item._id}>{item.name}</Option>;
           })}
         </Select>
-        <Button
+        {/* <Button
           type="secondary"
           onClick={() => {
             handle()
@@ -462,7 +462,7 @@ function InventoryManager(props) {
           style={{ marginBottom: "16px" }}
         >
           Sản phẩm sắp hết hạn
-          </Button>
+          </Button> */}
         <Modal
           footer={null}
           title={action}
