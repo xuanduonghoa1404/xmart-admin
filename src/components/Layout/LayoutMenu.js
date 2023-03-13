@@ -111,17 +111,17 @@ function LayoutMenu(props) {
               <Link to="/inventory/import">Nhập kho</Link>
             </Menu.Item>
           </SubMenu>
-          <Menu.Item key="37" icon={<ShopOutlined />}>
+          {/* <Menu.Item key="37" icon={<ShopOutlined />}>
             <Link to="/store/locator">Cửa hàng</Link>
-          </Menu.Item>
-          {/* <SubMenu key="sub2" icon={<ShopOutlined />} title="Cửa hàng">
-            <Menu.Item key="7" icon={<TableOutlined />}>
+          </Menu.Item> */}
+          <SubMenu key="sub12" icon={<ShopOutlined />} title="Cửa hàng">
+            <Menu.Item key="73" icon={<TableOutlined />}>
               <Link to="/store/locator">Chi nhánh</Link>
             </Menu.Item>
-            <Menu.Item key="102" icon={<ExperimentOutlined />}>
+            <Menu.Item key="1023" icon={<ExperimentOutlined />}>
               <Link to="/store/shop">Cấu hình</Link>
             </Menu.Item>
-          </SubMenu> */}
+          </SubMenu>
           <Menu.Item
             key="8"
             icon={<TeamOutlined />}
