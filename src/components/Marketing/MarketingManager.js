@@ -330,12 +330,12 @@ import dayjs from "dayjs";
         key: "discount",
         sorter: (a, b) => a.discount.length - b.discount.length,
       },
-      {
-        title: "Điều kiện",
-        dataIndex: "condition_text",
-        key: "condition_text",
-        sorter: (a, b) => a.condition_text.length - b.condition_text.length,
-      },
+      // {
+      //   title: "Điều kiện",
+      //   dataIndex: "condition_text",
+      //   key: "condition_text",
+      //   sorter: (a, b) => a.condition_text.length - b.condition_text.length,
+      // },
       {
         title: "Trạng thái",
         dataIndex: "status",

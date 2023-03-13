@@ -122,7 +122,7 @@ function Home(props) {
     ),
     datasets: [
       {
-        label: "Giá tiền theo từng đơn hàng",
+        label: "Doanh thu theo ngày",
         fill: false,
         // lineTension: 0.1,
         backgroundColor: "blue",
@@ -370,7 +370,7 @@ function Home(props) {
               color: "white",
             }}
           >
-            Thống kê tổng số đơn hàng theo ngày
+            Thống kê doanh thu theo ngày
           </div>
         </Col>
       </Row>
@@ -426,7 +426,7 @@ function Home(props) {
               color: "white",
             }}
           >
-            Thống kê số lượng từng sản phẩm
+            Thống kê số lượng từng sản phẩm đã bán
           </div>
         </Col>
       </Row>

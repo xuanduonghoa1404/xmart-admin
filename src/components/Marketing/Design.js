@@ -1500,7 +1500,7 @@ function Design() {
                     </div>
                   )}
                   <div>
-                    <p>Chọn nhãn</p>
+                    <p>Chọn nền/nhãn</p>
                     <div className="list-image">
                       {imageList?.map((item) => {
                         return (
@@ -1524,10 +1524,10 @@ function Design() {
         <div className="main-canvas-area">
           <div className="main-button-canvas">
             <Button onClick={undo} disabled={statusUndo}>
-              Undo <UndoOutlined />
+              Hoàn tác <UndoOutlined />
             </Button>
             <Button onClick={redo} disabled={statusRedo}>
-              <RedoOutlined /> Redo
+              <RedoOutlined /> Quay lại
             </Button>
           </div>
           <canvas id="canvas"></canvas>
