@@ -2,35 +2,49 @@ import axiosClient from "./axiosClient";
 import { notification } from "antd";
 
 const homeApi = {
-  getStatistic: async (begin, end) => {
+  getStatistic: async (begin, end, locator) => {
     try {
       const response = await axiosClient.get(
-        `api/statistic?begin=${begin}&end=${end}`
+        `api/statistic?begin=${begin}&end=${end}&locator=${
+          locator && locator !== "All" ? locator : null
+        }`
       );
       return response;
     } catch (error) {
       throw error;
     }
   },
-  getStatisticProduct: async (begin, end) => {
+  getStatisticProduct: async (locator) => {
     try {
-      const response = await axiosClient.get(`api/statistic/product`);
+      const response = await axiosClient.get(
+        `api/statistic/product?locator=${
+          locator && locator !== "all" ? locator : null
+        }`
+      );
       return response;
     } catch (error) {
       throw error;
     }
   },
-  getStatisticOrder: async (begin, end) => {
+  getStatisticOrder: async (locator) => {
     try {
-      const response = await axiosClient.get(`api/statistic/order`);
+      const response = await axiosClient.get(
+        `api/statistic/order?locator=${
+          locator && locator !== "all" ? locator : null
+        }`
+      );
       return response;
     } catch (error) {
       throw error;
     }
   },
-  getStatisticNumberOrder: async (begin, end) => {
+  getStatisticNumberOrder: async (begin, end, locator) => {
     try {
-      const response = await axiosClient.get(`api/statistic-number-order?begin=${begin}&end=${end}`);
+      const response = await axiosClient.get(
+        `api/statistic-number-order?begin=${begin}&end=${end}&locator=${
+          locator && locator !== "all" ? locator : null
+        }`
+      );
       return response;
     } catch (error) {
       throw error;
