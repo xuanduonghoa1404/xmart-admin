@@ -222,16 +222,13 @@ function Home(props) {
     ],
   };
 
-  const handleChangeLocator = useCallback(
-    (value, option) => {
-      setSelectedLocator(value);
-      let name =
-        listLocator?.find((item) => item._id.toString() === value.toString())
-          ?.name || "";
-      setStore(name);
-    },
-    [store, selectedLocator]
-  );
+  const handleChangeLocator = (value, option) => {
+    setSelectedLocator(value);
+    let name =
+      listLocator?.find((item) => item._id.toString() === value.toString())
+        ?.name || "";
+    setStore(name);
+  };
   return (
     <div>
       <Row gutter={16}>
