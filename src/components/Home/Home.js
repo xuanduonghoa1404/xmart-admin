@@ -1,8 +1,18 @@
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import PropTypes from "prop-types";
-import { Row, Col, ConfigProvider, DatePicker, Space, Statistic } from "antd";
+import {
+  Row,
+  Col,
+  ConfigProvider,
+  DatePicker,
+  Space,
+  Statistic,
+  Button,
+  Select,
+} from "antd";
 import { useState } from "react";
 import homeApi from "../../api/homeApi";
+import locatorApi from "../../api/locatorApi";
 
 import moment from "moment";
 import "moment/locale/vi";
@@ -17,7 +27,7 @@ import { BsCheckCircle } from "react-icons/bs";
 import NumberCard from "./NumberCard";
 
 const { RangePicker } = DatePicker;
-
+const { Option } = Select;
 function Home(props) {
   const [value, setValue] = useState([]);
   const [valueProduct, setValueProduct] = useState([]);
@@ -28,17 +38,22 @@ function Home(props) {
   const [numberOfOrderNotShipping, setNumberOfOrderNotShipping] = useState(0);
   const [numberOfOrderShipping, setNumberOfOrderShipping] = useState(0);
   const [numberOfOrder, setNumberOfOrder] = useState(0);
-
+  const [listLocator, setListLocator] = useState([]);
+  const [selectedLocator, setSelectedLocator] = useState(null);
+  const [store, setStore] = useState(null);
   useEffect(() => {
     const loadData = async () => {
       let begin = null;
       let end = null;
-      let resProduct = await homeApi.getStatisticProduct();
-      let resOrder = await homeApi.getStatisticOrder();
+      let resProduct = await homeApi.getStatisticProduct(selectedLocator);
+      let resOrder = await homeApi.getStatisticOrder(selectedLocator);
       let resNumberOrder = await homeApi.getStatisticNumberOrder(
         new Date("2023-01-01T00:00:00.731Z").getTime(),
-        new Date().getTime()
+        new Date().getTime(),
+        selectedLocator
       );
+      let locator = await locatorApi.getAllLocator();
+      setListLocator(locator);
       setValueProduct(resProduct);
       setValueOrder(resOrder);
       setValueNumberOrder(resNumberOrder);
@@ -55,7 +70,7 @@ function Home(props) {
       setNumberOfOrder(resOrder.length);
     };
     loadData();
-  }, []);
+  }, [selectedLocator]);
 
   const handleSuccess = (res) => {
     console.log(res);
@@ -145,24 +160,6 @@ function Home(props) {
     ],
   };
 
-  const options = {
-    title: {
-      display: true,
-      text: "Chart Title",
-    },
-    scales: {
-      yAxes: [
-        {
-          ticks: {
-            suggestedMin: 0,
-            // suggestedMax: 500,
-            stepSize: 10,
-          },
-        },
-      ],
-    },
-  };
-
   const dataNumberOfOrder = {
     labels: valueNumberOrder.map((item, index) =>
       moment(item.date).format("DD-MM-YYYY")
@@ -224,8 +221,36 @@ function Home(props) {
       },
     ],
   };
+
+  const handleChangeLocator = useCallback(
+    (value, option) => {
+      setSelectedLocator(value);
+      let name =
+        listLocator?.find((item) => item._id.toString() === value.toString())
+          ?.name || "";
+      setStore(name);
+    },
+    [store, selectedLocator]
+  );
   return (
     <div>
+      <Row gutter={16}>
+        <Select
+          style={{
+            minWidth: 120,
+            width: "fitContent",
+          }}
+          placeholder="Chọn chi nhánh"
+          // defaultValue={selectedLocator}
+          onChange={handleChangeLocator}
+        >
+          <Option value={"all"}>Tất cả chi nhánh</Option>
+          {listLocator.map((item, index) => {
+            return <Option value={item._id}>{item.name}</Option>;
+          })}
+        </Select>
+      </Row>
+      <br />
       <Row gutter={16}>
         <Col span={4}>
           <NumberCard
@@ -370,7 +395,7 @@ function Home(props) {
               color: "white",
             }}
           >
-            Thống kê doanh thu theo ngày
+            Thống kê doanh thu theo ngày {store ? ` chi nhánh ${store}` : ""}
           </div>
         </Col>
       </Row>
@@ -426,7 +451,8 @@ function Home(props) {
               color: "white",
             }}
           >
-            Thống kê số lượng từng sản phẩm đã bán
+            Thống kê số lượng từng sản phẩm đã bán{" "}
+            {store ? ` chi nhánh ${store}` : ""}
           </div>
         </Col>
       </Row>
